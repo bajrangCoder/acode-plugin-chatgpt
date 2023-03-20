@@ -1,5 +1,5 @@
 {
-  "id": "acode-plugin-chatgpt",
+  "id": "acode.plugin.chatgpt",
   "name": "Chat GPT",
   "main": "dist/main.js",
   "version": "1.0.0",
