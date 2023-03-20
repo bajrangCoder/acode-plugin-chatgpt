@@ -1,0 +1,108 @@
+#acode-plugin-chatgpt {
+  .chatBox {
+    height: calc(100vh - 85px);
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    .userChatBox{
+      width: 100vw;
+      padding: 20px;
+      padding-left: 8px;
+      padding-right: 8px;
+      /*border-bottom: 1px solid var(--border-color);*/
+      background: var(--primary-color);
+      display: flex;
+      flex-direction: row;
+      .userAvatar{
+        align-self: flex-start;
+        height: 40px;
+        width: 40px;
+        border-radius: 15px;
+        padding: 5px;
+        margin-left: 3px;
+      }
+      .userChat{
+        width: 80%;
+        white-space: pre;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    }
+    .gptChatBox{
+      width: 100vw;
+      padding: 20px;
+      padding-left: 8px;
+      padding-right: 8px;
+      border-bottom: 1px solid var(--popup-border-color);
+      background: var(--secondary-color);
+      display: flex;
+      flex-direction: row;
+      .gptAvatar{
+        align-self: flex-start;
+        height: 40px;
+        width: 40px;
+        border-radius: 15px;
+        padding: 5px;
+        margin-left: 3px;
+      }
+      .gptChat{
+        width: 80%;
+        white-space: pre;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        user-select: text;
+      }
+    }
+  }
+
+  .inputBox {
+    box-shadow: 0px -2px 4px var(--box-shadow-color);
+    display: flex;
+    padding: 10px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    font-family: sans-serif;
+    background-color: var(--popup-background-color);
+    border-top: 1px solid var(--border-color);
+    justify-content: center;
+    .chatTextarea{
+      border: none;
+      border-radius: 10px;
+      flex: 1;
+      font-size: 16px;
+      margin-right: 5px;
+      height: 30px;
+      transition: height 0.3s;
+      padding: 10px 20px;
+      box-sizing: border-box;
+      background: inherit;
+      color: var(--primary-text-color);
+      resize: none;
+      &:focus{
+        height: 60px;
+      }
+    }
+    .sendBtn{
+      border: none;
+      background: none;
+      margin-right: 13px;
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+      transition: all .3s ease-in-out;
+      img{
+        margin-right: 13px;
+        height: 35px;
+        width: 35px;
+        box-sizing: border-box;
+      }
+      &:hover{
+        background: var(--box-shadow-color);
+      }
+    }
+  }
+}

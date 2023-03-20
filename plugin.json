@@ -1,0 +1,15 @@
+{
+  "id": "acode-plugin-chatgpt",
+  "name": "Chat GPT",
+  "main": "dist/main.js",
+  "version": "1.0.0",
+  "readme": "readme.md",
+  "icon": "icon.png",
+  "files": [],
+  "price": 0,
+  "author": {
+    "name": "Raunak & Mayank",
+    "email": "bajrangcoders@gmail.com",
+    "github": "bajrangCoder"
+  }
+}
