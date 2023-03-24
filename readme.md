@@ -2,6 +2,18 @@
 
 **Chat GPT** is an advanced artificial intelligence developed by [OpenAi](https://openai.com/) and we have added it in form of plugin for **Acode**, developed to enhance your productivity while coding. With this plugin, you can communicate with an AI-powered virtual assistant that can remember your previous responses, provide contextual suggestions, and offer helpful solutions to your coding problems.
 
+<details>
+    <summary>Updates 🤩🤩</summary>
+    <details>
+        <summary>
+            <code><strong>v1.0.1</strong></code>
+        </summary>
+        <ul>
+            <li>Merged Pull request(now user are allowed to select their prompt)</li>
+        </ul>
+    </details>
+</details>
+
 ## Developers
 
 Chat GPT for Acode was developed by two skilled developers:
