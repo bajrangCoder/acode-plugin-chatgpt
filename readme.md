@@ -1,9 +1,19 @@
 # Chat GPT
 
+<div style="padding:8px;border: 1px solid #ff0707; background: #ffbebef8">Note: The new ui is in experimental form , so provide your feedback. That will help us to improve 🚀</div>
+
 **Chat GPT** is an advanced artificial intelligence developed by [OpenAi](https://openai.com/) and we have added it in form of plugin for **Acode**, developed to enhance your productivity while coding. With this plugin, you can communicate with an AI-powered virtual assistant that can remember your previous responses, provide contextual suggestions, and offer helpful solutions to your coding problems.
 
 <details>
     <summary>Updates 🤩🤩</summary>
+    <details>
+        <summary>
+            <code><strong>v1.0.2</strong></code>
+        </summary>
+        <ul>
+            <li>Redesigned the ui 💜</li>
+        </ul>
+    </details>
     <details>
         <summary>
             <code><strong>v1.0.1</strong></code>
@@ -14,11 +24,25 @@
     </details>
 </details>
 
-## Developers
+## Core Developers
 
-Chat GPT for Acode was developed by two skilled developers:
-- [Raunak](https://github.com/bajrangCoder)
-- [Mayank Sharma](https://github.com/mayank0274)
+Chat GPT for Acode is developed by two skilled developers:
+<ul style="list-style:none;">
+  <li style="display:flex; flex-direction:row;align-items:center;gap:8px;margin-bottom:8px;">
+    <img style="height:40px;width:40px;border-radius:50%;border:1px solid #777777f8" src="https://avatars.githubusercontent.com/u/71929976?v=4" alt="Raunak Raj"/>
+    <a href="https://github.com/bajrangCoder" style="text-decoration:none;">Raunak Raj (@bajrangCoder)</a>
+  </li>
+  <li style="display:flex; flex-direction:row;align-items:center;gap:8px;">
+    <img style="height:40px;width:40px;border-radius:50%;" src="https://avatars.githubusercontent.com/u/113236810?v=4" alt="Luck(Mayank) Sharma"/>
+    <a href="https://github.com/mayank0274" style="text-decoration:none;">Luck(Mayank) Sharma</a>
+  </li>
+</ul>
+
+## Contributers
+
+Chat GPT is an open-source plugin with many contributors who have not only fixed bugs but also contributed their work. They are:
+
+<a href="https://github.com/PatAbah" target="blank"><img style="height:30px;width:30px;border-radius:50%;" src="https://avatars.githubusercontent.com/u/34959120?v=4" alt="PatAbah"/></a>
 
 ## Features
 - User-friendly interface for easy communication with AI

@@ -1,108 +1,152 @@
 #acode-plugin-chatgpt {
-  .chatBox {
-    height: calc(100vh - 85px);
+  .mainApp{
     width: 100vw;
+    height: calc(100vh - 125px);
+    background: #343541;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    overflow-x: hidden;
-    .userChatBox{
-      width: 100vw;
-      padding: 20px;
-      padding-left: 8px;
-      padding-right: 8px;
-      /*border-bottom: 1px solid var(--border-color);*/
-      background: var(--primary-color);
-      display: flex;
-      flex-direction: row;
-      .userAvatar{
-        align-self: flex-start;
-        height: 40px;
-        width: 40px;
-        border-radius: 15px;
-        padding: 5px;
-        margin-left: 3px;
-      }
-      .userChat{
-        width: 80%;
-        white-space: pre;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        user-select: text;
-      }
-    }
-    .gptChatBox{
-      width: 100vw;
-      padding: 20px;
-      padding-left: 8px;
-      padding-right: 8px;
-      border-bottom: 1px solid var(--popup-border-color);
-      background: var(--secondary-color);
-      display: flex;
-      flex-direction: row;
-      .gptAvatar{
-        align-self: flex-start;
-        height: 40px;
-        width: 40px;
-        border-radius: 15px;
-        padding: 5px;
-        margin-left: 3px;
-      }
-      .gptChat{
-        width: 80%;
-        white-space: pre;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        user-select: text;
-      }
-    }
-  }
-
-  .inputBox {
-    box-shadow: 0px -2px 4px var(--box-shadow-color);
-    display: flex;
-    padding: 10px;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    font-family: sans-serif;
-    background-color: var(--popup-background-color);
-    border-top: 1px solid var(--border-color);
-    justify-content: center;
-    .chatTextarea{
-      border: none;
-      border-radius: 10px;
+    align-items: center;
+    justify-content: space-between;
+    .chatBox {
       flex: 1;
-      font-size: 16px;
-      margin-right: 5px;
-      height: 30px;
-      transition: height 0.3s;
-      padding: 10px 20px;
-      box-sizing: border-box;
-      background: inherit;
-      color: var(--primary-text-color);
-      resize: none;
-      &:focus{
-        height: 60px;
+      width: 100%;
+      height: 100%;
+      overflow-y: scroll;
+      /*overflow-x: hidden;*/
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      padding-bottom: 20px;
+      scroll-behavior: smooth;
+      
+      &::-webkit-scrollbar{
+        display: none;
+      }
+      .wrapper{
+        width: 100%;
+        padding: 15px;
+        .chat{
+          width: 100%;
+          max-width: 1280px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start;
+          gap: 10px;
+          
+          .profile{
+            width: 36px;
+            height: 36px;
+            border-radius: 5px;
+            background: #5436DA;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            img{
+              width: 60%;
+              height: 60%;
+              object-fit: contain;
+            }
+          }
+          
+          .message{
+            flex: 1;
+            color: #dcdcdc;
+            font-size: 20px;
+            overflow-x: scroll;
+            white-space: pre-wrap; 
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            word-wrap: break-word;
+            user-select: text;
+            &::-webkit-scrollbar{
+              display: none;
+            }
+          }
+        }
+      }
+      .ai_wrapper{
+        background: #40414F;
+        width: 100%;
+        padding: 15px;
+        .ai_chat{
+          width: 100%;
+          max-width: 1280px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start;
+          gap: 10px;
+          
+          .ai_profile{
+            width: 36px;
+            height: 36px;
+            border-radius: 5px;
+            background: #10a37f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            img{
+              width: 60%;
+              height: 60%;
+              object-fit: contain;
+            }
+          }
+          
+          .ai_message{
+            flex: 1;
+            color: #dcdcdc;
+            font-size: 20px;
+            overflow-x: scroll;
+            white-space: pre-wrap; 
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            word-wrap: break-word;
+            user-select: text;
+            &::-webkit-scrollbar{
+              display: none;
+            }
+          }
+        }
       }
     }
-    .sendBtn{
-      border: none;
-      background: none;
-      margin-right: 13px;
-      height: 40px;
-      width: 40px;
-      border-radius: 50%;
-      transition: all .3s ease-in-out;
-      img{
-        margin-right: 13px;
-        height: 35px;
-        width: 35px;
-        box-sizing: border-box;
+  
+    .inputBox {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 10px;
+      background: #40414F;
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      box-shadow: 0px -2px 4px var(--box-shadow-color);
+      .chatTextarea{
+        width: 100%;
+        font-size: 18px;
+        padding: 10px;
+        background: transparent;
+        border-radius: 5px;
+        border: none;
+        outline: none;
+        color: var(--primary-text-color);
+        resize: none;
       }
-      &:hover{
-        background: var(--box-shadow-color);
+      .sendBtn{
+        outline: 0;
+        border: 0;
+        cursor: pointer;
+        background: transparent;
+        img{
+          width: 30px;
+          height: 30px;
+        }
       }
     }
   }
