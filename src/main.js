@@ -94,6 +94,9 @@ class Chatgpt {
   
       // new chat 
   async newChat(){
+        // save previous responses for history => only save responses of predecessor session not all sessions
+    window.localStorage.setItem("chat-gpt-history",JSON.stringify(this.$promptsArray));
+    
     this.$promptsArray = [];
     this.$chatBox.innerHTML = "";
   }
