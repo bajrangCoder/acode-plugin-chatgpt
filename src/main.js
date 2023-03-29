@@ -31,6 +31,17 @@ class Chatgpt {
     });
     menuBtn.addEventListener("click", () => window.toast("Unavailable..\nWait for next update 🥺",4000));
     this.$page.header.append(menuBtn);
+    
+        // button for new chat
+    const newChatBtn = tag("span",{
+            className:"icon add",
+            dataset:{
+                action:"new-chat"
+            }
+        });
+        this.$page.header.append(newChatBtn);
+        newChatBtn.onclick = this.newChat.bind(this);
+        
     this.$style = tag("style", {
       textContent: style,
     });
@@ -80,6 +91,14 @@ class Chatgpt {
     );
     window.localStorage.setItem("chatgpt-api-key",newApiToken["token"]);
   }
+  
+      // new chat 
+  async newChat(){
+    this.$promptsArray = [];
+    this.$chatBox.innerHTML = "";
+  }
+
+  
   
   async run() {
     try{
