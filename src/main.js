@@ -130,7 +130,7 @@ class Chatgpt {
     const markup = `
       <div class="chat">
         <div class="profile"><img src="${userAvatar}" alt="user" /></div>
-        <div class="message">${message}</div>
+        <div class="message">${encodeURIComponent(message).replace(/%3C/g,'&lt;').replace(/%3E/g,'&gt;')}</div>
       </div>
     `;
     userChatBox.innerHTML += markup;
