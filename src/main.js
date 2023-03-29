@@ -3,6 +3,7 @@ import style from "./style.scss";
 import { Configuration, OpenAIApi } from "openai";
 
 const multiPrompt = acode.require('multiPrompt');
+const fs = acode.require("fs")
 
 class Chatgpt {
   
@@ -92,17 +93,23 @@ class Chatgpt {
     window.localStorage.setItem("chatgpt-api-key",newApiToken["token"]);
   }
   
-      // new chat 
-  async newChat(){
-        // save previous responses for history => only save responses of predecessor session not all sessions
-    window.localStorage.setItem("chat-gpt-history",JSON.stringify(this.$promptsArray));
-    
+async newChat(){
+    // save previous responses for history => only save responses of predecessor session not all sessions
+    try{
+    let { location } = editorManager.activeFile;
+    const uniqueName= `${this.$promptsArray[0].prevQuestion}.js`;
+    const content = `
+    const results = ${JSON.stringify(this.$promptsArray)};
+    export default results;
+    `;
+    const file = await fs(`${location}/history`).createFile(uniqueName,content);
+    }catch(err){
+      alert(err.message);
+    }
     this.$promptsArray = [];
     this.$chatBox.innerHTML = "";
   }
 
-  
-  
   async run() {
     try{
       let token;
