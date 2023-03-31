@@ -134,6 +134,7 @@ class Chatgpt {
    
      // display history data 
   async displayHistory(url,historyDialogBox){
+    this.$chatBox.innerHTML = "";
     const fileUrl = url.slice(1,url.length-1);
     try{
     const fileData = await fs(fileUrl).readFile();
