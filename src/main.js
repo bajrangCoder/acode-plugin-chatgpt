@@ -1,9 +1,12 @@
 import plugin from "../plugin.json";
 import style from "./style.scss";
+
 import { Configuration, OpenAIApi } from "openai";
 
 const multiPrompt = acode.require('multiPrompt');
-const fs = acode.require("fs")
+const fs = acode.require('fs');
+const DialogBox = acode.require('dialogBox');
+const helpers = acode.require("helpers");
 
 class Chatgpt {
   
@@ -30,9 +33,10 @@ class Chatgpt {
         action:"toggle-menu"
       }
     });
-    menuBtn.addEventListener("click", () => window.toast("Unavailable..\nWait for next update 🥺",4000));
+   
     this.$page.header.append(menuBtn);
-    
+    menuBtn.onclick = this.myHistory.bind(this);
+        
         // button for new chat
     const newChatBtn = tag("span",{
             className:"icon add",
@@ -93,23 +97,74 @@ class Chatgpt {
     window.localStorage.setItem("chatgpt-api-key",newApiToken["token"]);
   }
   
-async newChat(){
-    // save previous responses for history => only save responses of predecessor session not all sessions
+      // new chat 
+  async newChat(){
+    if(!this.$promptsArray.length){
+      return;
+    }
     try{
-    let { location } = editorManager.activeFile;
+   
     const uniqueName= `${this.$promptsArray[0].prevQuestion}.js`;
-    const content = `
-    const results = ${JSON.stringify(this.$promptsArray)};
-    export default results;
-    `;
-    const file = await fs(`${location}/history`).createFile(uniqueName,content);
+    
+    const content = JSON.stringify(this.$promptsArray);
+    
+    if(!await fs(`${window.DATA_STORAGE}/chatgpt`).exists()){
+      await fs(window.DATA_STORAGE).createDirectory("chatgpt");
+    }
+    
+    const file = await fs(`${window.DATA_STORAGE}/chatgpt`).createFile(uniqueName,content);
+   
     }catch(err){
       alert(err.message);
     }
     this.$promptsArray = [];
     this.$chatBox.innerHTML = "";
   }
-
+  
+  // get history 
+   async getHistoryElem(){
+     const location = `${window.DATA_STORAGE}/chatgpt`;
+     const allFiles = await fs(location).lsDir();
+     let elems = "";
+     for(let i=0;i<allFiles.length;i++){
+       elems += `<li data-path="${JSON.parse(JSON.stringify(allFiles[i])).url}">${JSON.parse(JSON.stringify(allFiles[i])).name.split(".")[0]}</li>`;
+     }
+     return elems;
+   }
+   
+     // display history data 
+  async displayHistory(url,historyDialogBox){
+    const fileUrl = url.slice(1,url.length-1);
+    try{
+    const fileData = await fs(fileUrl).readFile();
+    const responses = Array.from(JSON.parse(await helpers.decodeText(fileData)));
+    historyDialogBox.hide();
+    responses.forEach((e)=>{
+      this.appendUserQuery(e.prevQuestion);
+      this.appendGptResponse(e.prevResponse);
+    })
+    }catch(err){
+      alert(err.message)
+    }
+  }
+   
+  // show history 
+  async myHistory(){
+    const historyList = await this.getHistoryElem();
+    const content = `<ul>${historyList}</ul>`;
+    const historyDialogBox = DialogBox(
+  'History',
+   content,
+  'Cancel',
+  );
+  
+  historyDialogBox.onclick((e)=>{
+    const targetElem = e.target;
+    const fileUrl = JSON.stringify(targetElem.getAttribute("data-path"));
+    this.displayHistory(fileUrl,historyDialogBox);
+  });
+  }
+ 
   async run() {
     try{
       let token;
