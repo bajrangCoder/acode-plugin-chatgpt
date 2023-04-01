@@ -1,7 +1,5 @@
 # Chat GPT
 
-<div style="padding:8px;border: 1px solid #ff0707; background: #ffbebef8">Note: The new ui is in experimental form , so provide your feedback. That will help us to improve 🚀</div>
-
 **Chat GPT** is an advanced artificial intelligence developed by [OpenAi](https://openai.com/) and we have added it in form of plugin for **Acode**, developed to enhance your productivity while coding. With this plugin, you can communicate with an AI-powered virtual assistant that can remember your previous responses, provide contextual suggestions, and offer helpful solutions to your coding problems.
 
 <details>

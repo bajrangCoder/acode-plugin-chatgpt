@@ -124,30 +124,46 @@ class Chatgpt {
   }
   
   async appendUserQuery(message){
-    const userAvatar = this.baseUrl + "assets/user_avatar.png";
-    const userChatBox = document.createElement("div");
-    userChatBox.classList.add("wrapper");
-    const markup = `
-      <div class="chat">
-        <div class="profile"><img src="${userAvatar}" alt="user" /></div>
-        <div class="message">${encodeURIComponent(message).replace(/%3C/g,'&lt;').replace(/%3E/g,'&gt;')}</div>
-      </div>
-    `;
-    userChatBox.innerHTML += markup;
-    this.$chatBox.appendChild(userChatBox);
+    try{
+      const userAvatar = this.baseUrl + "assets/user_avatar.png";
+      const userChatBox = tag("div",{className:"wrapper"});
+      const chat = tag("div",{className:"chat"});
+      const profileImg = tag('div',{
+        className:'profile',
+        child: tag('img',{
+          src: userAvatar,
+          alt: "user"
+        })
+      });
+      const msg = tag('div',{
+        className: 'message',
+        textContent: message
+      });
+      chat.append(...[profileImg,msg]);
+      userChatBox.append(chat);
+      this.$chatBox.appendChild(userChatBox);
+    } catch(err){
+      window.alert(err)
+    }
   }
   
   async appendGptResponse(message){
     const chatgpt_avatar = this.baseUrl + "assets/chatgpt_avatar.svg";
-    const gptChatBox = document.createElement("div");
-    gptChatBox.classList.add("ai_wrapper");
-    const markup = `
-      <div class="ai_chat">
-        <div class="ai_profile"><img src="${chatgpt_avatar}" alt="ai" /></div>
-        <div class="ai_message">${message}</div>
-      </div>
-    `;
-    gptChatBox.innerHTML += markup;
+    const gptChatBox = tag("div",{className:"ai_wrapper"});
+    const chat = tag("div",{className:"ai_chat"});
+    const profileImg = tag('div',{
+      className:'ai_profile',
+      child: tag('img',{
+        src: chatgpt_avatar,
+        alt: "ai"
+      })
+    });
+    const msg = tag('div',{
+      className: 'ai_message',
+      textContent: message
+    });
+    chat.append(...[profileImg,msg]);
+    gptChatBox.append(chat);
     this.$chatBox.appendChild(gptChatBox);
   }
   
