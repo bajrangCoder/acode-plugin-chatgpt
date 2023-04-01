@@ -99,11 +99,11 @@ class Chatgpt {
   
       // new chat 
   async newChat(){
+    this.$chatBox.innerHTML = "";
     if(!this.$promptsArray.length){
       return;
     }
     try{
-   
     const uniqueName= `${this.$promptsArray[0].prevQuestion}.js`;
     
     const content = JSON.stringify(this.$promptsArray);
@@ -118,7 +118,6 @@ class Chatgpt {
       alert(err.message);
     }
     this.$promptsArray = [];
-    this.$chatBox.innerHTML = "";
   }
   
   // get history 
