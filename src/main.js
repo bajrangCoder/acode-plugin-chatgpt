@@ -8,6 +8,8 @@ const fs = acode.require('fs');
 const DialogBox = acode.require('dialogBox');
 const helpers = acode.require("helpers");
 
+const AI_HISTORY_PATH = window.DATA_STORAGE+"chatgpt";
+
 class Chatgpt {
   
   async init($page) {
@@ -34,19 +36,18 @@ class Chatgpt {
       }
     });
    
-    this.$page.header.append(menuBtn);
-    menuBtn.onclick = this.myHistory.bind(this);
-        
-        // button for new chat
+    // button for new chat
     const newChatBtn = tag("span",{
-            className:"icon add",
-            dataset:{
-                action:"new-chat"
-            }
-        });
-        this.$page.header.append(newChatBtn);
-        newChatBtn.onclick = this.newChat.bind(this);
-        
+      className:"icon add",
+      dataset:{
+        action:"new-chat"
+      }
+    });
+    this.$page.header.append(...[newChatBtn,menuBtn]);
+    
+    menuBtn.onclick = this.myHistory.bind(this);
+    newChatBtn.onclick = this.newChat.bind(this);
+    
     this.$style = tag("style", {
       textContent: style,
     });
@@ -97,52 +98,60 @@ class Chatgpt {
     window.localStorage.setItem("chatgpt-api-key",newApiToken["token"]);
   }
   
-      // new chat 
+  // new chat 
   async newChat(){
-    this.$chatBox.innerHTML = "";
-    if(!this.$promptsArray.length){
-      return;
-    }
     try{
-    const uniqueName= `${this.$promptsArray[0].prevQuestion}.js`;
-    
-    const content = JSON.stringify(this.$promptsArray);
-    
-    if(!await fs(`${window.DATA_STORAGE}/chatgpt`).exists()){
-      await fs(window.DATA_STORAGE).createDirectory("chatgpt");
-    }
-    
-    const file = await fs(`${window.DATA_STORAGE}/chatgpt`).createFile(uniqueName,content);
-   
+      this.$chatBox.innerHTML = "";
+      window.toast("New session",4000);
+      if(!this.$promptsArray.length){
+        return;
+      }
+      try{
+        const uniqueName= `${this.$promptsArray[0].prevQuestion}.js`;
+        const content = JSON.stringify(this.$promptsArray);
+        
+        if(!await fs(AI_HISTORY_PATH).exists()){
+          await fs(window.DATA_STORAGE).createDirectory("chatgpt");
+        }
+        
+        const file = await fs(AI_HISTORY_PATH).createFile(uniqueName,content);
+      }catch(err){
+        alert(err.message);
+      }
+      this.$promptsArray = [];
     }catch(err){
-      alert(err.message);
+      window.alert(err);
     }
-    this.$promptsArray = [];
   }
   
   // get history 
-   async getHistoryElem(){
-     const location = `${window.DATA_STORAGE}/chatgpt`;
-     const allFiles = await fs(location).lsDir();
-     let elems = "";
-     for(let i=0;i<allFiles.length;i++){
-       elems += `<li data-path="${JSON.parse(JSON.stringify(allFiles[i])).url}">${JSON.parse(JSON.stringify(allFiles[i])).name.split(".")[0]}</li>`;
-     }
-     return elems;
-   }
+  async getHistoryItems(){
+    if(await fs(AI_HISTORY_PATH).exists()){
+      const allFiles = await fs(AI_HISTORY_PATH).lsDir();
+      let elems = "";
+      for(let i=0;i<allFiles.length;i++){
+        elems += `<li style="background: var(--secondary-color);color: var(--secondary-text-color);padding: 10px;margin-bottom: 5px;border-radius: 8px;" data-path="${JSON.parse(JSON.stringify(allFiles[i])).url}">${JSON.parse(JSON.stringify(allFiles[i])).name.split(".")[0]}</li>`;
+      }
+      return elems;
+    }else{
+      let elems = "";
+      elems = `<li style="background: var(--secondary-color);color: var(--secondary-text-color);padding: 10px;border-radius: 8px;" data-path="#not-available">Not Available</li>`;
+      return elems;
+    }
+  }
    
-     // display history data 
+  // display history data 
   async displayHistory(url,historyDialogBox){
     this.$chatBox.innerHTML = "";
     const fileUrl = url.slice(1,url.length-1);
     try{
-    const fileData = await fs(fileUrl).readFile();
-    const responses = Array.from(JSON.parse(await helpers.decodeText(fileData)));
-    historyDialogBox.hide();
-    responses.forEach((e)=>{
-      this.appendUserQuery(e.prevQuestion);
-      this.appendGptResponse(e.prevResponse);
-    })
+      const fileData = await fs(fileUrl).readFile();
+      const responses = Array.from(JSON.parse(await helpers.decodeText(fileData)));
+      historyDialogBox.hide();
+      responses.forEach((e)=>{
+        this.appendUserQuery(e.prevQuestion);
+        this.appendGptResponse(e.prevResponse);
+      })
     }catch(err){
       alert(err.message)
     }
@@ -150,19 +159,22 @@ class Chatgpt {
    
   // show history 
   async myHistory(){
-    const historyList = await this.getHistoryElem();
+    const historyList = await this.getHistoryItems();
     const content = `<ul>${historyList}</ul>`;
     const historyDialogBox = DialogBox(
-  'History',
-   content,
-  'Cancel',
-  );
-  
-  historyDialogBox.onclick((e)=>{
-    const targetElem = e.target;
-    const fileUrl = JSON.stringify(targetElem.getAttribute("data-path"));
-    this.displayHistory(fileUrl,historyDialogBox);
-  });
+      'History',
+      content,
+      'Cancel',
+    );
+    
+    historyDialogBox.onclick((e)=>{
+      const targetElem = e.target;
+      if (targetElem.getAttribute("data-path") == "#not-available") {
+        return;
+      }
+      const fileUrl = JSON.stringify(targetElem.getAttribute("data-path"));
+      this.displayHistory(fileUrl,historyDialogBox);
+    });
   }
  
   async run() {
