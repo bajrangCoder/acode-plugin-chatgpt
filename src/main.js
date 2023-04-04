@@ -107,7 +107,7 @@ class Chatgpt {
         return;
       }
       try{
-        const uniqueName= `${this.$promptsArray[0].prevQuestion}.js`;
+        const uniqueName= `${this.$promptsArray[0].prevQuestion.substring(0,30)}.json`;
         const content = JSON.stringify(this.$promptsArray);
         
         if(!await fs(AI_HISTORY_PATH).exists()){
@@ -130,7 +130,7 @@ class Chatgpt {
       const allFiles = await fs(AI_HISTORY_PATH).lsDir();
       let elems = "";
       for(let i=0;i<allFiles.length;i++){
-        elems += `<li style="background: var(--secondary-color);color: var(--secondary-text-color);padding: 10px;margin-bottom: 5px;border-radius: 8px;" data-path="${JSON.parse(JSON.stringify(allFiles[i])).url}">${JSON.parse(JSON.stringify(allFiles[i])).name.split(".")[0]}</li>`;
+        elems += `<li style="background: var(--secondary-color);color: var(--secondary-text-color);padding: 5px;margin-bottom: 5px;border-radius: 8px;font-size:16px;" data-path="${JSON.parse(JSON.stringify(allFiles[i])).url}">${JSON.parse(JSON.stringify(allFiles[i])).name.split(".")[0]}</li>`;
       }
       return elems;
     }else{
