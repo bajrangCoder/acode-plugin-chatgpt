@@ -10,6 +10,8 @@ const helpers = acode.require("helpers");
 
 const AI_HISTORY_PATH = window.DATA_STORAGE+"chatgpt";
 
+let CURRENT_SESSION_FILEPATH = null;
+
 class Chatgpt {
   
   async init($page) {
@@ -99,13 +101,12 @@ class Chatgpt {
   }
   
   // new chat 
-  async newChat(){
+  async saveHistory(){
     try{
-      this.$chatBox.innerHTML = "";
-      window.toast("New session",4000);
       if(!this.$promptsArray.length){
         return;
       }
+        if(CURRENT_SESSION_FILEPATH == null){
       try{
         const uniqueName= `${this.$promptsArray[0].prevQuestion.substring(0,30)}.json`;
         const content = JSON.stringify(this.$promptsArray);
@@ -114,14 +115,30 @@ class Chatgpt {
           await fs(window.DATA_STORAGE).createDirectory("chatgpt");
         }
         
-        const file = await fs(AI_HISTORY_PATH).createFile(uniqueName,content);
+        CURRENT_SESSION_FILEPATH = await fs(AI_HISTORY_PATH).createFile(uniqueName,content);
+      
       }catch(err){
         alert(err.message);
       }
-      this.$promptsArray = [];
+        }else{
+          try{
+            CURRENT_SESSION_FILEPATH = await fs(CURRENT_SESSION_FILEPATH).writeFile(this.$promptsArray);
+          }catch(err){
+            alert(err.message);
+          }
+        }
     }catch(err){
       window.alert(err);
     }
+  }
+  
+  // new chat 
+  
+  async newChat(){
+    this.$chatBox.innerHTML = "";
+    window.toast("New session",4000);
+    this.$promptsArray = [];
+    CURRENT_SESSION_FILEPATH = null;
   }
   
   // get history 
@@ -283,8 +300,10 @@ class Chatgpt {
         // adding prompt to array 
         this.$promptsArray.push({
           prevQuestion : question,
-          prevResponse : result
+          prevResponse : result,
         })
+        this.saveHistory();
+        
         targetElem.innerText = "";
         let index = 0
           
