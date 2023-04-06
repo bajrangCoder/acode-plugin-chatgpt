@@ -6,6 +6,16 @@
     <summary>Updates 🤩🤩</summary>
     <details>
         <summary>
+            <code><strong>v1.0.3</strong></code>
+        </summary>
+        <ul>
+            <li>Ui bugs fixed</li>
+            <li>Now Chat conversation will be saved</li>
+            
+        </ul>
+    </details>
+    <details>
+        <summary>
             <code><strong>v1.0.2</strong></code>
         </summary>
         <ul>
@@ -28,7 +38,7 @@ Chat GPT for Acode is developed by two skilled developers:
 <ul style="list-style:none;">
   <li style="display:flex; flex-direction:row;align-items:center;gap:8px;margin-bottom:8px;">
     <img style="height:40px;width:40px;border-radius:50%;border:1px solid #777777f8" src="https://avatars.githubusercontent.com/u/71929976?v=4" alt="Raunak Raj"/>
-    <a href="https://github.com/bajrangCoder" style="text-decoration:none;">Raunak Raj (@bajrangCoder)</a>
+    <a href="https://github.com/bajrangCoder" style="text-decoration:none;">Raunak Raj</a>
   </li>
   <li style="display:flex; flex-direction:row;align-items:center;gap:8px;">
     <img style="height:40px;width:40px;border-radius:50%;" src="https://avatars.githubusercontent.com/u/113236810?v=4" alt="Luck(Mayank) Sharma"/>
