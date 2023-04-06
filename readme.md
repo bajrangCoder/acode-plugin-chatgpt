@@ -11,7 +11,6 @@
         <ul>
             <li>Ui bugs fixed</li>
             <li>Now Chat conversation will be saved</li>
-            
         </ul>
     </details>
     <details>
