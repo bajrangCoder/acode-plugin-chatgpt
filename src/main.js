@@ -3,10 +3,10 @@ import style from "./style.scss";
 
 import { Configuration,OpenAIApi } from "openai";
 
-const multiPrompt=acode.require('multiPrompt');
-const fs=acode.require('fs');
-const DialogBox=acode.require('dialogBox');
-const helpers=acode.require("helpers");
+const multiPrompt = acode.require('multiPrompt');
+const fs = acode.require('fs');
+const DialogBox = acode.require('dialogBox');
+const helpers = acode.require("helpers");
 
 const AI_HISTORY_PATH=window.DATA_STORAGE+"chatgpt";
 
@@ -147,8 +147,8 @@ class Chatgpt {
       const allFiles=await fs(AI_HISTORY_PATH).lsDir();
       let elems="";
       for(let i=0;i<allFiles.length;i++) {
-        elems+=`<li style="background: var(--secondary-color);color: var(--secondary-text-color);padding: 5px;margin-bottom: 5px;border-radius: 8px;font-size:16px;" data-path="${JSON.parse(JSON.stringify(allFiles[i])).url}">
-                  ${JSON.parse(JSON.stringify(allFiles[i])).name.split(".")[0]}
+        elems+=`<li class="dialog-item" style="background: var(--secondary-color);color: var(--secondary-text-color);padding: 5px;margin-bottom: 5px;border-radius: 8px;font-size:15px;display:flex;flex-direction:row;justify-content:space-between;gap:5px;" data-path="${JSON.parse(JSON.stringify(allFiles[i])).url}">
+                  <p class="history-item" style="">${JSON.parse(JSON.stringify(allFiles[i])).name.split(".")[0]}</p><div><button class="delete-history-btn" style="height:25px;width:25px;border:none;padding:5px;outline:none;border-radius:50%;background:var(--error-text-color);text-align:center;">✗</button></div>
                 </li>`;
       }
       return elems;
@@ -187,19 +187,25 @@ class Chatgpt {
         'Cancel',
       );
   
-      historyDialogBox.onclick((e) => {
-        const targetElem = e.target;
-        
-        
-        
-        if(targetElem.getAttribute("data-path")=="#not-available") {
+      historyDialogBox.onclick(async (e) => {
+        const dialogItem = e.target.closest('.dialog-item');
+        const deleteButton = dialogItem.querySelector('.delete-history-btn');
+        const historyItem = dialogItem.querySelector('.history-item');
+        if(dialogItem.getAttribute("data-path")=="#not-available") {
           return;
         }
-        if(!targetElem.getAttribute("data-path")){
+        if(!dialogItem.getAttribute("data-path")){
           return;
         }
-        const fileUrl=JSON.stringify(targetElem.getAttribute("data-path"));
-        this.displayHistory(fileUrl,historyDialogBox);
+        if(e.target === dialogItem || e.target === historyItem){
+          const fileUrl=JSON.stringify(dialogItem.getAttribute("data-path"));
+          this.displayHistory(fileUrl,historyDialogBox);
+        } else if(e.target === deleteButton){
+          await fs(dialogItem.getAttribute("data-path")).delete();
+          dialogItem.remove();
+          window.toast("Deleted",3000);
+          this.newChat();
+        }
       });
     }catch(err){
       window.alert(err)

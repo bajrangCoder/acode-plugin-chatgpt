@@ -6,6 +6,15 @@
     <summary>Updates 🤩🤩</summary>
     <details>
         <summary>
+            <code><strong>v1.0.5</strong></code>
+        </summary>
+        <ul>
+            <li>Added delete button to delete chat history</li>
+            <li>Improved history dialog</li>
+        </ul>
+    </details>
+    <details>
+        <summary>
             <code><strong>v1.0.3</strong></code>
         </summary>
         <ul>
@@ -56,7 +65,7 @@ Chat GPT is an open-source plugin with many contributors who have not only fixed
 - AI remembers previous responses to provide more personalized suggestions
 - Provides helpful solutions to coding problems
 - Regular updates to improve the AI's capabilities
-- ~View History (under development)~
+- View Chat History
 
 ### Important Links
 - [Github Issue Page](https://github.com/bajrangCoder/acode-plugin-chatgpt/issues)
