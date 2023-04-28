@@ -1,6 +1,6 @@
 {
   "name": "acode-plugin-chatgpt",
-  "version": "1.0.3",
+  "version": "1.0.6",
   "description": "Latest Plugin Template For Acode",
   "main": "dist/main.js",
   "scripts": {

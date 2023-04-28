@@ -7,6 +7,7 @@ const multiPrompt = acode.require('multiPrompt');
 const fs = acode.require('fs');
 const DialogBox = acode.require('dialogBox');
 const helpers = acode.require("helpers");
+const loader = acode.require("loader");
 
 const AI_HISTORY_PATH = window.DATA_STORAGE + "chatgpt";
 
@@ -121,13 +122,13 @@ class Chatgpt {
       if(CURRENT_SESSION_FILEPATH == null) {
         try {
           const uniqueName = `${this.$promptsArray[0].prevQuestion.substring(0, 30)}.json`;
-          const content = JSON.stringify(this.$promptsArray);
+          //const content = JSON.stringify(this.$promptsArray);
 
           if(!await fs(AI_HISTORY_PATH).exists()) {
             await fs(window.DATA_STORAGE).createDirectory("chatgpt");
           }
 
-          CURRENT_SESSION_FILEPATH = await fs(AI_HISTORY_PATH).createFile(uniqueName, content);
+          CURRENT_SESSION_FILEPATH = await fs(AI_HISTORY_PATH).createFile(uniqueName, this.$promptsArray);
 
         } catch(err) {
           alert(err.message);
@@ -176,13 +177,15 @@ class Chatgpt {
     this.$chatBox.innerHTML = "";
     const fileUrl = url.slice(1, url.length - 1);
     try {
+      historyDialogBox.hide();
+      loader.create("Wait","Fetching chat history....");
       const fileData = await fs(fileUrl).readFile();
       const responses = Array.from(JSON.parse(await helpers.decodeText(fileData)));
-      historyDialogBox.hide();
       responses.forEach((e) => {
         this.appendUserQuery(e.prevQuestion);
         this.appendGptResponse(e.prevResponse);
       })
+      loader.destroy()
     } catch(err) {
       alert(err.message)
     }
@@ -255,8 +258,8 @@ class Chatgpt {
         typographer: false,
         quotes: '“”‘’',
         highlight: function(str, lang) {
-          let html = '<pre class="hljs" style="border: 2px solid var(--border-color);white-space: pre-wrap;border-radius:10px;padding:13px;word-wrap:break-word;"><code>' + hljs.highlightAuto(str).value + '</code></pre>';
-          return html
+          let html = `<pre class="hljs" style="border: 2px solid var(--border-color);box-sizing:border-box;width:calc(100vw - 5.8rem);margin-right:5px;border-radius:5px;padding:13px;overflow: auto;"><code>${hljs.highlightAuto(str).value}</code></pre>`;
+          return html;
         }
       });
       this.$sendBtn.addEventListener("click", this.sendQuery.bind(this))
@@ -266,7 +269,7 @@ class Chatgpt {
       window.alert(error);
     }
   }
-
+  
   async sendQuery() {
     const chatText = this.$chatTextarea;
     if(chatText.value != "") {
@@ -339,13 +342,12 @@ class Chatgpt {
         const res = await this.$openai.createChatCompletion({
           model: "gpt-3.5-turbo",
           messages: arrMessage,
-          //prompt: (question+((this.$promptsArray.length>3)? JSON.stringify(this.$promptsArray.slice(-3)):JSON.stringify(this.$promptsArray))), // if array length greater than 3 then send last 3 questions for better max_tokens management
           temperature: 0,
           max_tokens: 3000,
         })
         clearInterval(this.$loadInterval);
         const targetElem = responseBox[responseBox.length - 1];
-        let result = res.data.choices[0].message.content.trim().toString();
+        let result = res.data.choices[0].message.content;
 
         // adding prompt to array 
         this.$promptsArray.push({
@@ -354,7 +356,7 @@ class Chatgpt {
         })
         this.saveHistory();
 
-        targetElem.innerText = "";
+        targetElem.innerHTML = "";
         /*
         let index = 0
 
@@ -397,9 +399,9 @@ class Chatgpt {
     // made change in last element
     if(loadingDots.length != 0) {
       this.$loadInterval = setInterval(() => {
-        loadingDots[loadingDots.length - 1].innerText += ".";
-        if(loadingDots[loadingDots.length - 1].innerText == "......") {
-          loadingDots[loadingDots.length - 1].innerText = ".";
+        loadingDots[loadingDots.length - 1].innerText += "•";
+        if(loadingDots[loadingDots.length - 1].innerText == "••••••") {
+          loadingDots[loadingDots.length - 1].innerText = "•";
         }
       }, 300);
     }

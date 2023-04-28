@@ -6,6 +6,18 @@
     <summary>Updates 🤩🤩</summary>
     <details>
         <summary>
+            <code><strong>v1.0.6</strong></code>
+        </summary>
+        <ul>
+            <li>Added Syntax highlighting for codes</li>
+            <li>Changed the ai model for better conversation</li>
+            <li>removed typing animation of response</li>
+            <li>markdown rendring of responses</li>
+            <li>fixed bugs</li>
+        </ul>
+    </details>
+    <details>
+        <summary>
             <code><strong>v1.0.5</strong></code>
         </summary>
         <ul>
@@ -66,6 +78,7 @@ Chat GPT is an open-source plugin with many contributors who have not only fixed
 - Provides helpful solutions to coding problems
 - Regular updates to improve the AI's capabilities
 - View Chat History
+- Syntax highlighting and markdown styling, etc
 
 ### Important Links
 - [Github Issue Page](https://github.com/bajrangCoder/acode-plugin-chatgpt/issues)
