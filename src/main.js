@@ -176,11 +176,16 @@ class Chatgpt {
   async displayHistory(url, historyDialogBox) {
     this.$chatBox.innerHTML = "";
     const fileUrl = url.slice(1, url.length - 1);
+    CURRENT_SESSION_FILEPATH = fileUrl;
     try {
       historyDialogBox.hide();
       loader.create("Wait","Fetching chat history....");
       const fileData = await fs(fileUrl).readFile();
       const responses = Array.from(JSON.parse(await helpers.decodeText(fileData)));
+      
+      this.$promptsArray = [];
+      this.$promptsArray = responses;
+      
       responses.forEach((e) => {
         this.appendUserQuery(e.prevQuestion);
         this.appendGptResponse(e.prevResponse);
@@ -359,7 +364,6 @@ class Chatgpt {
         targetElem.innerHTML = "";
         /*
         let index = 0
-
         let typingInterval = setInterval(() => {
           if(index < result.length) {
             targetElem.innerText += result.charAt(index)
