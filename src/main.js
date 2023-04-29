@@ -256,7 +256,7 @@ class Chatgpt {
 
       this.$openai = new OpenAIApi(new Configuration({ apiKey: token }));
       this.$mdIt = window.markdownit({
-        html: true,
+        html: false,
         xhtmlOut: false,
         breaks: false,
         linkify: false,
