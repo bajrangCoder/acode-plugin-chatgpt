@@ -6,6 +6,16 @@
     <summary>Updates 🤩🤩</summary>
     <details>
         <summary>
+            <code><strong>v1.0.7</strong></code>
+        </summary>
+        <ul>
+            <li>Now you can also generate image with your prompt</li>
+            <li>Markdown bugs fixed</li>
+            <li>Internal improvement</li>
+        </ul>
+    </details>
+    <details>
+        <summary>
             <code><strong>v1.0.6</strong></code>
         </summary>
         <ul>
@@ -79,6 +89,7 @@ Chat GPT is an open-source plugin with many contributors who have not only fixed
 - Regular updates to improve the AI's capabilities
 - View Chat History
 - Syntax highlighting and markdown styling, etc
+- Generate images with your prompts
 
 ### Important Links
 - [Github Issue Page](https://github.com/bajrangCoder/acode-plugin-chatgpt/issues)
@@ -90,6 +101,17 @@ Chat GPT is an open-source plugin with many contributors who have not only fixed
 To use Chat GPT, simply search for `"Chat GPT"` in the **command palette (•••)** to open the chat interface. From there, you can communicate with the AI and receive helpful suggestions and solutions. 
 
 To update your token, simply type `"Chat GPT update token"`.
+
+## How to Generate Image?
+
+For generating image follow below steps:
+- Install Chatgpt plugin first
+- Open sidebar and select chatgpt icon
+- enter your prompt for image
+- select size
+- Click the button to generate and wait for a couple of minutes
+- then you will see success message and image will be displayed
+- and image will be saved in your Internal Storage > Download
 
 ## How to get Api token?
 

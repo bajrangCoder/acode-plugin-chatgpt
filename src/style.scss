@@ -1,3 +1,51 @@
+.main-sidebar-cont {
+  box-sizing: border-box;
+  padding: 1rem;
+  .sidebar-ai-heading{
+    text-align: center;
+    padding-bottom: 15px;
+  }
+  .prompt-area{
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--button-background-color);
+    outline: none;
+    color: var(--primary-text-color);
+    resize: none;
+    margin-bottom: 8px;
+    background: transparent;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .size-selector{
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+    background: transparent;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--button-background-color);
+    outline: none;
+    color: var(--primary-text-color);
+  }
+  .generatorBtn{
+    border: none;
+    background: var(--button-background-color);
+    color: var(--button-text-color);
+    padding: 15px;
+    border-top-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    font-weight: 600;
+    font-size: 18px;
+  }
+  .img-fluid{
+    max-width: 100%;
+    margin-top: 10px;
+  }
+}
+
+
 #acode-plugin-chatgpt {
   .mainApp{
     width: 100vw;
@@ -28,7 +76,6 @@
       .wrapper{
         width: 100vw;
         padding: 15px;
-        
         padding-right: 10px;
         padding-left: 8px;
         .chat{
@@ -146,21 +193,16 @@
               margin-top: 0;
               margin-bottom: 1rem;
             }
-            ol,
-            ul {
-              padding-left: 2rem;
-            }
-            ol,
             ul,
-            dl {
-              margin-top: 0;
-              margin-bottom: 1rem;
+            ol {
+              margin: 1em 0;
+              padding: 0 0 0 2em;
             }
-            ol ol,
-            ul ul,
-            ol ul,
-            ul ol {
-              margin-bottom: 0;
+            ul {
+              list-style-type: disc;
+            }
+            li p:last-child {
+              margin: 0
             }
             dt {
               font-weight: 700;
@@ -237,7 +279,7 @@
       box-shadow: 0px -2px 4px var(--box-shadow-color);
       .chatTextarea{
         width: 100%;
-        font-size: 18px;
+        font-size: 16px;
         padding: 10px;
         background: transparent;
         border-radius: 5px;

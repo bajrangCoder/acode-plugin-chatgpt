@@ -2,12 +2,16 @@ import plugin from "../plugin.json";
 import style from "./style.scss";
 
 import { Configuration, OpenAIApi } from "openai";
+import { base64StringToBlob } from "blob-util";
 
 const multiPrompt = acode.require('multiPrompt');
 const fs = acode.require('fs');
 const DialogBox = acode.require('dialogBox');
 const helpers = acode.require("helpers");
 const loader = acode.require("loader");
+const sidebarApps = acode.require('sidebarApps');
+const toInternalUrl = acode.require('toInternalUrl');
+
 
 const AI_HISTORY_PATH = window.DATA_STORAGE + "chatgpt";
 
@@ -40,6 +44,43 @@ class Chatgpt {
       name: "chatgpt_update_token",
       description: "Update Chat GPT Token",
       exec: this.updateApiToken.bind(this),
+    });
+
+    // add a sidebar app for image generator ai
+    acode.addIcon('chatgpt_ai_img', this.baseUrl + 'assets/chatgpt_avatar.svg');
+    sidebarApps.add('chatgpt_ai_img', 'dall-e-ai', 'Image Generator AI', (app) => {
+      const headingS = tag("h2", {
+        textContent: "Image Generator",
+        className: "sidebar-ai-heading"
+      });
+      this.$promtArea = tag("textarea", {
+        placeholder: "Type your prompt here...",
+        rows: "4",
+        className: "prompt-area",
+        maxlength: 1000,
+      });
+      this.$sizeSelector = tag("select", {
+        className: "size-selector"
+      });
+      this.$sizeSelector.innerHTML = `<optgroup label="Select size of Image">
+                                  <option value="256x256">256x256</option>
+                                  <option value="512x512">512x512</option>
+                                  <option value="1024x1024" selected>1024x1024</option>
+                                </optgroup>`;
+      this.$generatorBtn = tag("button", {
+        textContent: "Generate",
+        className: "generatorBtn",
+      });
+      this.$generatedImg = tag("img", {
+        className: "img-fluid",
+        src: ""
+      });
+      this.$mainSideBarCont = tag("div", {
+        className: "main-sidebar-cont"
+      });
+      this.$generatorBtn.addEventListener("click", this.generateImage.bind(this));
+      this.$mainSideBarCont.append(...[headingS, this.$promtArea, this.$sizeSelector, this.$generatorBtn, this.$generatedImg]);
+      app.append(this.$mainSideBarCont);
     });
 
     $page.id = "acode-plugin-chatgpt";
@@ -95,6 +136,102 @@ class Chatgpt {
     this.$promptsArray = [];
   }
 
+  async generateImage() {
+    try {
+      if(!this.$promtArea.value) {
+        acode.alert("Warning","Prompt is required");
+        return;
+      }
+      let token;
+      const myOpenAiToken = window.localStorage.getItem("chatgpt-api-key");
+      if(myOpenAiToken) {
+        token = myOpenAiToken;
+      } else {
+        let tokenPrompt = await multiPrompt(
+          "Enter your openai(chatgpt) key",
+          [{
+            type: "text",
+            id: "token",
+            required: true,
+            placeholder: "Enter your chatgpt api key"
+          }],
+          "https://platform.openai.com/account/api-keys"
+        );
+        token = tokenPrompt["token"];
+        window.localStorage.setItem("chatgpt-api-key", token);
+      }
+      const $openai = new OpenAIApi(new Configuration({ apiKey: token }));
+      loader.create("Wait", "Generating image....");
+      const response = await $openai.createImage({
+        prompt: this.$promtArea.value,
+        n: 1,
+        size: this.$sizeSelector.value,
+        response_format: "b64_json"
+      });
+      if(!fs("file:///storage/emulated/0/Download").exists()){
+        await fs("file:///storage/emulated/0/").createDirectory("Download");
+      }
+      const imageBlob = base64StringToBlob(response.data.data[0].b64_json);
+      const randomImgName = this.generateRandomName();
+      await fs("file:///storage/emulated/0/Download").createFile(randomImgName+".png",imageBlob);
+      let newImgUrl = await toInternalUrl("file:///storage/emulated/0/Download/"+randomImgName+".png");
+      this.$generatedImg.src = newImgUrl;
+      loader.destroy();
+      this.$promtArea.value = "file:///storage/emulated/0/Download/"+randomImgName+".png";
+      window.toast("Hurray 🎉! Image generated successfully. Image path is given in prompt box.", 3000);
+    } catch(error) {
+      window.alert(error);
+    }
+  }
+  
+  generateRandomName() {
+    const timestamp = Date.now().toString();
+    const randomString = Math.random().toString(36).substring(2, 8);
+    return `${timestamp}_${randomString}`;
+  }
+
+  async run() {
+    try {
+      let token;
+      const myOpenAiToken = window.localStorage.getItem("chatgpt-api-key");
+      if(myOpenAiToken) {
+        token = myOpenAiToken;
+      } else {
+        let tokenPrompt = await multiPrompt(
+          "Enter your openai(chatgpt) key",
+          [{
+            type: "text",
+            id: "token",
+            required: true,
+            placeholder: "Enter your chatgpt api key"
+          }],
+          "https://platform.openai.com/account/api-keys"
+        );
+        token = tokenPrompt["token"];
+        window.localStorage.setItem("chatgpt-api-key", token);
+      }
+
+      this.$openai = new OpenAIApi(new Configuration({ apiKey: token }));
+      this.$mdIt = window.markdownit({
+        html: false,
+        xhtmlOut: false,
+        breaks: false,
+        linkify: false,
+        typographer: false,
+        quotes: '“”‘’',
+        highlight: function(str, lang) {
+          let html = `<pre class="hljs" style="border: 2px solid var(--border-color);box-sizing:border-box;width:calc(100vw - 5.8rem);margin-right:5px;border-radius:5px;padding:13px;overflow: auto;"><code>${hljs.highlightAuto(str).value}</code></pre>`;
+          return html;
+        }
+      });
+      this.$sendBtn.addEventListener("click", this.sendQuery.bind(this))
+
+      this.$page.show();
+    } catch(error) {
+      window.alert(error);
+    }
+  }
+
   async updateApiToken() {
     /*
     update chatgpt token
@@ -145,17 +282,20 @@ class Chatgpt {
     }
   }
 
-  // new chat 
-
   newChat() {
+    /*
+    Start new chat session
+    */
     this.$chatBox.innerHTML = "";
     window.toast("New session", 4000);
     this.$promptsArray = [];
     CURRENT_SESSION_FILEPATH = null;
   }
 
-  // get history 
   async getHistoryItems() {
+    /*
+    get lost of history items
+    */
     if(await fs(AI_HISTORY_PATH).exists()) {
       const allFiles = await fs(AI_HISTORY_PATH).lsDir();
       let elems = "";
@@ -172,20 +312,22 @@ class Chatgpt {
     }
   }
 
-  // display history data 
   async displayHistory(url, historyDialogBox) {
+    /*
+    display selected chat history
+    */
     this.$chatBox.innerHTML = "";
     const fileUrl = url.slice(1, url.length - 1);
     CURRENT_SESSION_FILEPATH = fileUrl;
     try {
       historyDialogBox.hide();
-      loader.create("Wait","Fetching chat history....");
+      loader.create("Wait", "Fetching chat history....");
       const fileData = await fs(fileUrl).readFile();
       const responses = Array.from(JSON.parse(await helpers.decodeText(fileData)));
-      
+
       this.$promptsArray = [];
       this.$promptsArray = responses;
-      
+
       responses.forEach((e) => {
         this.appendUserQuery(e.prevQuestion);
         this.appendGptResponse(e.prevResponse);
@@ -196,8 +338,10 @@ class Chatgpt {
     }
   }
 
-  // show history 
   async myHistory() {
+    /*
+    show conversation history
+    */
     try {
       const historyList = await this.getHistoryItems();
       const content = `<ul>${historyList}</ul>`;
@@ -232,49 +376,6 @@ class Chatgpt {
     }
   }
 
-  async run() {
-    try {
-      let token;
-      const myOpenAiToken = window.localStorage.getItem("chatgpt-api-key");
-
-      if(myOpenAiToken) {
-        token = myOpenAiToken;
-      } else {
-        let tokenPrompt = await multiPrompt(
-          "Enter your openai(chatgpt) key",
-          [{
-            type: "text",
-            id: "token",
-            required: true,
-            placeholder: "Enter your chatgpt api key"
-          }],
-          "https://platform.openai.com/account/api-keys"
-        );
-        token = tokenPrompt["token"];
-        window.localStorage.setItem("chatgpt-api-key", token);
-      }
-
-      this.$openai = new OpenAIApi(new Configuration({ apiKey: token }));
-      this.$mdIt = window.markdownit({
-        html: false,
-        xhtmlOut: false,
-        breaks: false,
-        linkify: false,
-        typographer: false,
-        quotes: '“”‘’',
-        highlight: function(str, lang) {
-          let html = `<pre class="hljs" style="border: 2px solid var(--border-color);box-sizing:border-box;width:calc(100vw - 5.8rem);margin-right:5px;border-radius:5px;padding:13px;overflow: auto;"><code>${hljs.highlightAuto(str).value}</code></pre>`;
-          return html;
-        }
-      });
-      this.$sendBtn.addEventListener("click", this.sendQuery.bind(this))
-      
-      this.$page.show();
-    } catch(error) {
-      window.alert(error);
-    }
-  }
-  
   async sendQuery() {
     const chatText = this.$chatTextarea;
     if(chatText.value != "") {
