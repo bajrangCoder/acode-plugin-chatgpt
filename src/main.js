@@ -3,6 +3,7 @@ import style from "./style.scss";
 
 import { Configuration, OpenAIApi } from "openai";
 import { base64StringToBlob } from "blob-util";
+import { v4 as uuidv4 } from 'uuid';
 
 const multiPrompt = acode.require('multiPrompt');
 const fs = acode.require('fs');
@@ -139,7 +140,7 @@ class Chatgpt {
   async generateImage() {
     try {
       if(!this.$promtArea.value) {
-        acode.alert("Warning","Prompt is required");
+        acode.alert("Warning", "Prompt is required");
         return;
       }
       let token;
@@ -168,22 +169,22 @@ class Chatgpt {
         size: this.$sizeSelector.value,
         response_format: "b64_json"
       });
-      if(!fs("file:///storage/emulated/0/Download").exists()){
+      if(!fs("file:///storage/emulated/0/Download").exists()) {
         await fs("file:///storage/emulated/0/").createDirectory("Download");
       }
       const imageBlob = base64StringToBlob(response.data.data[0].b64_json);
       const randomImgName = this.generateRandomName();
-      await fs("file:///storage/emulated/0/Download").createFile(randomImgName+".png",imageBlob);
-      let newImgUrl = await toInternalUrl("file:///storage/emulated/0/Download/"+randomImgName+".png");
+      await fs("file:///storage/emulated/0/Download").createFile(randomImgName + ".png", imageBlob);
+      let newImgUrl = await toInternalUrl("file:///storage/emulated/0/Download/" + randomImgName + ".png");
       this.$generatedImg.src = newImgUrl;
       loader.destroy();
-      this.$promtArea.value = "file:///storage/emulated/0/Download/"+randomImgName+".png";
+      this.$promtArea.value = "file:///storage/emulated/0/Download/" + randomImgName + ".png";
       window.toast("Hurray 🎉! Image generated successfully. Image path is given in prompt box.", 3000);
     } catch(error) {
       window.alert(error);
     }
   }
-  
+
   generateRandomName() {
     const timestamp = Date.now().toString();
     const randomString = Math.random().toString(36).substring(2, 8);
@@ -256,9 +257,10 @@ class Chatgpt {
       if(!this.$promptsArray.length) {
         return;
       }
+
       if(CURRENT_SESSION_FILEPATH == null) {
         try {
-          const uniqueName = `${this.$promptsArray[0].prevQuestion.substring(0, 30)}.json`;
+          const uniqueName = `${this.$promptsArray[0].prevQuestion.substring(0, 30)}_${uuidv4()}.json`;
           //const content = JSON.stringify(this.$promptsArray);
 
           if(!await fs(AI_HISTORY_PATH).exists()) {
@@ -272,13 +274,20 @@ class Chatgpt {
         }
       } else {
         try {
+
+          if(!await fs(CURRENT_SESSION_FILEPATH).exists()) {
+            this.newChat();
+            window.toast("Some error occurred or file you trying to open has been deleted");
+            return;
+          }
+
           CURRENT_SESSION_FILEPATH = await fs(CURRENT_SESSION_FILEPATH).writeFile(this.$promptsArray);
         } catch(err) {
           alert(err.message);
         }
       }
     } catch(err) {
-      window.alert(err);
+      window.alert(err.message);
     }
   }
 
@@ -301,7 +310,7 @@ class Chatgpt {
       let elems = "";
       for(let i = 0; i < allFiles.length; i++) {
         elems += `<li class="dialog-item" style="background: var(--secondary-color);color: var(--secondary-text-color);padding: 5px;margin-bottom: 5px;border-radius: 8px;font-size:15px;display:flex;flex-direction:row;justify-content:space-between;gap:5px;" data-path="${JSON.parse(JSON.stringify(allFiles[i])).url}">
-                  <p class="history-item" style="">${JSON.parse(JSON.stringify(allFiles[i])).name.split(".")[0]}</p><div><button class="delete-history-btn" style="height:25px;width:25px;border:none;padding:5px;outline:none;border-radius:50%;background:var(--error-text-color);text-align:center;">✗</button></div>
+                  <p class="history-item" style="">${JSON.parse(JSON.stringify(allFiles[i])).name.split("_")[0]}...</p><div><button class="delete-history-btn" style="height:25px;width:25px;border:none;padding:5px;outline:none;border-radius:50%;background:var(--error-text-color);text-align:center;">✗</button></div>
                 </li>`;
       }
       return elems;
@@ -318,6 +327,13 @@ class Chatgpt {
     */
     this.$chatBox.innerHTML = "";
     const fileUrl = url.slice(1, url.length - 1);
+
+    if(!await fs(fileUrl).exists()) {
+      this.newChat();
+      window.toast("Some error occurred or file you trying to open has been deleted");
+      return;
+    }
+
     CURRENT_SESSION_FILEPATH = fileUrl;
     try {
       historyDialogBox.hide();
@@ -365,14 +381,27 @@ class Chatgpt {
           const fileUrl = JSON.stringify(dialogItem.getAttribute("data-path"));
           this.displayHistory(fileUrl, historyDialogBox);
         } else if(e.target === deleteButton) {
+          
+         const fileUrl = JSON.stringify(dialogItem.getAttribute("data-path"));
+         const url = fileUrl.slice(1, fileUrl.length - 1);
+         
           await fs(dialogItem.getAttribute("data-path")).delete();
+          //alert(CURRENT_SESSION_FILEPATH);
+          
+          if(CURRENT_SESSION_FILEPATH == url )
+         {
+          const chatBox = document.querySelector(".chatBox");
+          chatBox.innerHTML = "";
+          this.$promptsArray = [];
+         }
+          
           dialogItem.remove();
           window.toast("Deleted", 3000);
-          this.newChat();
+          CURRENT_SESSION_FILEPATH = null;
         }
       });
     } catch(err) {
-      window.alert(err)
+      window.alert(err.message)
     }
   }
 
@@ -460,7 +489,7 @@ class Chatgpt {
           prevQuestion: question,
           prevResponse: result,
         })
-        this.saveHistory();
+        await this.saveHistory();
 
         targetElem.innerHTML = "";
         /*
