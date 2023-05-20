@@ -62,7 +62,7 @@
       height: 100%;
       box-sizing: border-box;
       overflow-y: auto;
-      
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -78,6 +78,7 @@
         padding: 15px;
         padding-right: 10px;
         padding-left: 8px;
+        box-sizing: border-box;
         .chat{
           width: 100vw;
           
@@ -107,6 +108,7 @@
             font-size: 16px;
             white-space: pre-wrap;
             word-wrap: break-word;
+            width: calc(100vw - 5.8rem);
             scrollbar-width: none;
             user-select: text;
             &::-webkit-scrollbar{
@@ -119,7 +121,7 @@
         background: var(--secondary-color);
         width: 100vw;
         padding: 15px;
-        
+        box-sizing: border-box;
         padding-right: 10px;
         padding-left: 8px;
         .ai_chat{
@@ -153,8 +155,38 @@
             white-space: pre-wrap;
             word-wrap: break-word;
             user-select: text;
+            width: calc(100vw - 5.4rem);
             &::-webkit-scrollbar{
               display: none;
+            }
+            .error-box{
+              border: 1px solid var(--error-text-color);
+              color: var(--error-text-color);
+              font-weight: 700;
+              padding: 8px;
+              width: calc(100vw - 5.8rem);
+              white-space: pre-wrap;
+              word-break: break-word;
+              border-radius: 10px;
+            }
+            .codeBlock {
+              border: 2px solid var(--border-color);
+              box-sizing: border-box;
+              width: calc(100vw - 5.8rem);
+              margin-right: 5px;
+              border-radius: 5px;
+              padding: 13px;
+              overflow-x: auto;
+              &::-webkit-scrollbar {
+                display: flex;
+                width: 40px;
+              }
+              &::-webkit-scrollbar-track {
+                background: transparent;
+              }
+              ::-webkit-scrollbar-thumb {
+                background: var(--scrollbar-color);
+              }
             }
             /*markdown styles*/
             hr {
@@ -269,7 +301,7 @@
       position: fixed;
       bottom: 0;
       width: 100%;
-      
+      z-index: 3;
       margin: 0 auto;
       padding: 10px;
       background: var(--popup-background-color);

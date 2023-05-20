@@ -22,17 +22,17 @@ class Chatgpt {
 
   async init($page) {
     // Load external stylesheet and script
-    const githubDarkFile = tag("link", {
+    this.$githubDarkFile = tag("link", {
       rel: "stylesheet",
       href: this.baseUrl + "assets/github-dark.css"
     });
-    const higlightJsFile = tag("script", {
+    this.$higlightJsFile = tag("script", {
       src: this.baseUrl + "assets/highlight.min.js"
     });
-    const markdownItFile = tag("script", {
+    this.$markdownItFile = tag("script", {
       src: this.baseUrl + "assets/markdown-it.min.js"
     });
-    document.head.append(githubDarkFile, higlightJsFile, markdownItFile)
+    document.head.append(this.$githubDarkFile, this.$higlightJsFile, this.$markdownItFile)
 
     editorManager.editor.commands.addCommand({
       name: "chatgpt",
@@ -158,6 +158,7 @@ class Chatgpt {
           }],
           "https://platform.openai.com/account/api-keys"
         );
+        if(!tokenPrompt) return;
         token = tokenPrompt["token"];
         window.localStorage.setItem("chatgpt-api-key", token);
       }
@@ -181,7 +182,12 @@ class Chatgpt {
       this.$promtArea.value = "file:///storage/emulated/0/Download/" + randomImgName + ".png";
       window.toast("Hurray 🎉! Image generated successfully. Image path is given in prompt box.", 3000);
     } catch(error) {
-      window.alert(error);
+      loader.destroy();
+      if(error.response) {
+        acode.alert("Error",`Status code: ${error.response.status}, Message: ${error.response.data.error.message}`);
+      } else {
+        acode.alert("Error",error.message);
+      }
     }
   }
 
@@ -221,7 +227,7 @@ class Chatgpt {
         typographer: false,
         quotes: '“”‘’',
         highlight: function(str, lang) {
-          let html = `<pre class="hljs" style="border: 2px solid var(--border-color);box-sizing:border-box;width:calc(100vw - 5.8rem);margin-right:5px;border-radius:5px;padding:13px;overflow: auto;"><code>${hljs.highlightAuto(str).value}</code></pre>`;
+          let html = `<pre class="hljs codeBlock"><code>${hljs.highlightAuto(str).value}</code></pre>`;
           return html;
         }
       });
@@ -249,6 +255,17 @@ class Chatgpt {
       "https://platform.openai.com/account/api-keys"
     );
     window.localStorage.setItem("chatgpt-api-key", newApiToken["token"]);
+    window.toast("Api key updated!",3000);
+  }
+  
+  _sanitizeFileName(fileName) {
+    // Remove special characters and symbols
+    const sanitizedFileName = fileName.replace(/[^\w\s.-]/gi, '');
+    // Trim leading and trailing spaces
+    const trimmedFileName = sanitizedFileName.trim();
+    // Replace spaces with underscores
+    const finalFileName = trimmedFileName.replace(/\s+/g, '_');
+    return finalFileName;
   }
 
   // new chat 
@@ -260,7 +277,8 @@ class Chatgpt {
 
       if(CURRENT_SESSION_FILEPATH == null) {
         try {
-          const uniqueName = `${this.$promptsArray[0].prevQuestion.substring(0, 30)}_${uuidv4()}.json`;
+          const sanitisedFileNme = this._sanitizeFileName(this.$promptsArray[0].prevQuestion.substring(0, 30));
+          const uniqueName = `${sanitisedFileNme}__${uuidv4()}.json`;
           //const content = JSON.stringify(this.$promptsArray);
 
           if(!await fs(AI_HISTORY_PATH).exists()) {
@@ -303,14 +321,14 @@ class Chatgpt {
 
   async getHistoryItems() {
     /*
-    get lost of history items
+    get list of history items
     */
     if(await fs(AI_HISTORY_PATH).exists()) {
       const allFiles = await fs(AI_HISTORY_PATH).lsDir();
       let elems = "";
       for(let i = 0; i < allFiles.length; i++) {
         elems += `<li class="dialog-item" style="background: var(--secondary-color);color: var(--secondary-text-color);padding: 5px;margin-bottom: 5px;border-radius: 8px;font-size:15px;display:flex;flex-direction:row;justify-content:space-between;gap:5px;" data-path="${JSON.parse(JSON.stringify(allFiles[i])).url}">
-                  <p class="history-item" style="">${JSON.parse(JSON.stringify(allFiles[i])).name.split("_")[0]}...</p><div><button class="delete-history-btn" style="height:25px;width:25px;border:none;padding:5px;outline:none;border-radius:50%;background:var(--error-text-color);text-align:center;">✗</button></div>
+                  <p class="history-item">${allFiles[i].name.split("__")[0].substring(0,25)}...</p><div><button class="delete-history-btn" style="height:25px;width:25px;border:none;padding:5px;outline:none;border-radius:50%;background:var(--error-text-color);text-align:center;">✗</button></div>
                 </li>`;
       }
       return elems;
@@ -463,63 +481,63 @@ class Chatgpt {
 
   async getChatgptResponse(question) {
     try {
-      try {
-        // get all gptchat element 
-        const responseBox = Array.from(document.querySelectorAll(".ai_message"));
-        const arrMessage = this.$promptsArray > 0 ?
-          this.$promptsArray.map(({ prevQuestion, prevResponse }) => ({
-            role: "user",
-            content: prevQuestion
-          }, {
-            role: "assistant",
-            content: prevResponse
-          })) : [{ role: "user", content: question }];
-        const res = await this.$openai.createChatCompletion({
-          model: "gpt-3.5-turbo",
-          messages: arrMessage,
-          temperature: 0,
-          max_tokens: 3000,
-        })
-        clearInterval(this.$loadInterval);
-        const targetElem = responseBox[responseBox.length - 1];
-        let result = res.data.choices[0].message.content;
+      // get all gptchat element 
+      const responseBox = Array.from(document.querySelectorAll(".ai_message"));
+      const arrMessage = this.$promptsArray > 0 ?
+        this.$promptsArray.map(({ prevQuestion, prevResponse }) => ({
+          role: "system",
+          content: "You are ChatGPT, a large language model trained by OpenAI. Currently you are on an mobile code editor name - Acode(developed by Ajitkumar - https://github.com/deadlyjack). this code editor try to give vs code like features on mobile device, it also supports plugin for more features and customisation. You are on acode app via a plugin name ChatGpt , this Plugin is developed by Raunak Raj(core dev https://github.com/bajrangCoder) and Mayank Sharma(https://github.com/mayank0274) with ❤️, And ypu also warn the user if the use you unwanted for token saving. Follow the user's instructions carefully. Respond using markdown."
+        }, {
+          role: "user",
+          content: prevQuestion
+        }, {
+          role: "assistant",
+          content: prevResponse
+        })) : [{ role: "user", content: question }];
+      const res = await this.$openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: arrMessage,
+        temperature: 0,
+        max_tokens: 3000,
+      })
+      clearInterval(this.$loadInterval);
+      const targetElem = responseBox[responseBox.length - 1];
+      let result = res.data.choices[0].message.content;
 
-        // adding prompt to array 
-        this.$promptsArray.push({
-          prevQuestion: question,
-          prevResponse: result,
-        })
-        await this.saveHistory();
+      // adding prompt to array 
+      this.$promptsArray.push({
+        prevQuestion: question,
+        prevResponse: result,
+      })
+      await this.saveHistory();
 
-        targetElem.innerHTML = "";
-        /*
-        let index = 0
-        let typingInterval = setInterval(() => {
-          if(index < result.length) {
-            targetElem.innerText += result.charAt(index)
-            this.scrollToBottom();
-            index++
-          } else {
-            clearInterval(typingInterval)
-          }
-        }, 30)
-        */
-        targetElem.innerHTML = this.$mdIt.render(result);
-        this.scrollToBottom();
-      } catch(error) {
-        const responseBox = Array.from(document.querySelectorAll(".ai_message"));
-        clearInterval(this.$loadInterval);
-        const targetElem = responseBox[responseBox.length - 1];
-        targetElem.innerText = "";
-        if(error.response) {
-          targetElem.innerText += `Status code: ${error.response.status}\n`;
-          targetElem.innerText += `Error data: ${JSON.stringify(error.response.data)}\n`;
+      targetElem.innerHTML = "";
+      /*
+      let index = 0
+      let typingInterval = setInterval(() => {
+        if(index < result.length) {
+          targetElem.innerText += result.charAt(index)
+          this.scrollToBottom();
+          index++
         } else {
-          targetElem.innerText += `Error message: ${error.message}\n`;
+          clearInterval(typingInterval)
         }
+      }, 30)
+      */
+      targetElem.innerHTML = this.$mdIt.render(result);
+      this.scrollToBottom();
+    } catch(error) {
+      const responseBox = Array.from(document.querySelectorAll(".ai_message"));
+      clearInterval(this.$loadInterval);
+      const targetElem = responseBox[responseBox.length - 1];
+      targetElem.innerHTML = "";
+      const $errorBox = tag('div',{className:"error-box"});
+      if(error.response) {
+        $errorBox.innerText = `Status code: ${error.response.status}\n${JSON.stringify(error.response.data)}`;
+      } else {
+        $errorBox.innerText = `${error.message}`;
       }
-    } catch(err) {
-      window.alert(err)
+      targetElem.appendChild($errorBox);
     }
   }
 
@@ -544,6 +562,11 @@ class Chatgpt {
   async destroy() {
     editorManager.editor.commands.removeCommand("chatgpt");
     editorManager.editor.commands.removeCommand("chatgpt_update_token");
+    window.localStorage.removeItem('chatgpt-api-key');
+    this.$githubDarkFile.remove();
+    this.$higlightJsFile.remove();
+    this.$markdownItFile.remove();
+    this.$style.remove();
   }
 }
 

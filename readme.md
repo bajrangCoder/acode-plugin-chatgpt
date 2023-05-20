@@ -1,9 +1,31 @@
 # Chat GPT
 
+<div style="padding:10px;border:1px solid #f78300;border-radius:8px; background: #f4a76dec;color:#fff;">
+<strong>⚠️ Important note</strong><br>
+If you face any issue or error or you want to report bugs, Please report these things in github repo of this plugin. Because on Acode website i am not able to reply or help you , Due to bugs and limitations. That's why I am not replying to your reviews. But you can provide good feedback on acode review page for new users.
+<br><strong>Hope you understand ❤️❤️</strong>
+</div>
+<br>
+
 **Chat GPT** is an advanced artificial intelligence developed by [OpenAi](https://openai.com/) and we have added it in form of plugin for **Acode**, developed to enhance your productivity while coding. With this plugin, you can communicate with an AI-powered virtual assistant that can remember your previous responses, provide contextual suggestions, and offer helpful solutions to your coding problems.
+
+> **Important Note:**
+I am planning to use a database approach in this plugin to save users' API tokens. This is because many users ask the same question multiple times, and there are also many users. If a database system is implemented, instead of generating a response from the OpenAI API for the same question, the plugin will fetch the response from the database and save the tokens of many users. However, this approach requires funding to host the database, and as a student, I don't have enough money to maintain or set it up. If you could provide support, it would be possible. Please provide your feedback on this approach on the GitHub repository or in the review section.
+
 
 <details>
     <summary>Updates 🤩🤩</summary>
+    <details>
+        <summary>
+            <code><strong>v1.0.8</strong></code>
+        </summary>
+        <ul>
+            <li>Almost every encountered bugs are fixed 😴</li>
+            <li>some internal improvement and changes</li>
+            <li>Fixed chats saving issue</li>
+            <li>Improved error readability</li>
+        </ul>
+    </details>
     <details>
         <summary>
             <code><strong>v1.0.7</strong></code>
@@ -60,7 +82,7 @@
             <li>Merged Pull request(now user are allowed to select their prompt)</li>
         </ul>
     </details>
-</details>
+</details><br>
 
 ## Core Developers
 
