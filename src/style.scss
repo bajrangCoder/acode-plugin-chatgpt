@@ -109,6 +109,7 @@
         color: var(--primary-text-color);
         font-size: 16px;
         line-height: 1.5;
+        user-select: text;
       }
     }
   }
@@ -153,7 +154,7 @@
     font-size: 16px;
     line-height: 1.5;
     overflow: hidden;
-    
+    user-select: text;
     .codeBlock {
       border: 2px solid var(--border-color);
       width: 100%;

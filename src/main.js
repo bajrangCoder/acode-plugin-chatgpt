@@ -192,12 +192,18 @@ class Chatgpt {
   }
 
   generateRandomName() {
+    /*
+    generates random names for generated images
+    */
     const timestamp = Date.now().toString();
     const randomString = Math.random().toString(36).substring(2, 8);
     return `${timestamp}_${randomString}`;
   }
 
   async run() {
+    /*
+    ask for api key and open chagpt ui page on clicking in command pallete 
+    */
     try {
       let token;
       const myOpenAiToken = window.localStorage.getItem("chatgpt-api-key");
@@ -259,6 +265,10 @@ class Chatgpt {
   }
   
   _sanitizeFileName(fileName) {
+    /*
+    utility function for removing special characters and 
+    white spaces from file names
+    */
     // Remove special characters and symbols
     const sanitizedFileName = fileName.replace(/[^\w\s.-]/gi, '');
     // Trim leading and trailing spaces
@@ -268,8 +278,10 @@ class Chatgpt {
     return finalFileName;
   }
 
-  // new chat 
   async saveHistory() {
+    /*
+    save chat history 
+    */
     try {
       if(!this.$promptsArray.length) {
         return;
@@ -424,6 +436,9 @@ class Chatgpt {
   }
 
   async sendQuery() {
+    /*
+    event on clicking send prompt button of chatgpt 
+    */
     const chatText = this.$chatTextarea;
     if(chatText.value != "") {
       this.appendUserQuery(chatText.value);
@@ -436,6 +451,9 @@ class Chatgpt {
   }
 
   async appendUserQuery(message) {
+    /*
+    add user query to ui
+    */
     try {
       const userAvatar = this.baseUrl + "assets/user_avatar.png";
       const userChatBox = tag("div", { className: "wrapper" });
@@ -460,6 +478,9 @@ class Chatgpt {
   }
 
   async appendGptResponse(message) {
+    /*
+    add ai response to ui
+    */
     const chatgpt_avatar = this.baseUrl + "assets/chatgpt_avatar.svg";
     const gptChatBox = tag("div", { className: "ai_wrapper" });
     const chat = tag("div", { className: "ai_chat" });
@@ -480,9 +501,14 @@ class Chatgpt {
   }
 
   async getChatgptResponse(question) {
+    /*
+    fetch ai response from openai api
+    @parm: question {string} - user prompt
+    */
     try {
       // get all gptchat element 
       const responseBox = Array.from(document.querySelectorAll(".ai_message"));
+      // remake an prompt array
       const arrMessage = this.$promptsArray > 0 ?
         this.$promptsArray.map(({ prevQuestion, prevResponse }) => ({
           role: "system",
@@ -500,6 +526,7 @@ class Chatgpt {
         temperature: 0,
         max_tokens: 3000,
       })
+      // remove dot loader 
       clearInterval(this.$loadInterval);
       const targetElem = responseBox[responseBox.length - 1];
       let result = res.data.choices[0].message.content;
@@ -509,6 +536,7 @@ class Chatgpt {
         prevQuestion: question,
         prevResponse: result,
       })
+      // asve chat history 
       await this.saveHistory();
 
       targetElem.innerHTML = "";
@@ -527,6 +555,7 @@ class Chatgpt {
       targetElem.innerHTML = this.$mdIt.render(result);
       this.scrollToBottom();
     } catch(error) {
+      // error handling 
       const responseBox = Array.from(document.querySelectorAll(".ai_message"));
       clearInterval(this.$loadInterval);
       const targetElem = responseBox[responseBox.length - 1];
@@ -546,6 +575,9 @@ class Chatgpt {
   }
 
   async loader() {
+    /*
+    creates dot loader
+    */
     // get all gptchat element for loader
     const loadingDots = Array.from(document.querySelectorAll(".ai_message"));
     // made change in last element

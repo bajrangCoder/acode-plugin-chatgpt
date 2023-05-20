@@ -10,7 +10,7 @@ If you face any issue or error or you want to report bugs, Please report these t
 **Chat GPT** is an advanced artificial intelligence developed by [OpenAi](https://openai.com/) and we have added it in form of plugin for **Acode**, developed to enhance your productivity while coding. With this plugin, you can communicate with an AI-powered virtual assistant that can remember your previous responses, provide contextual suggestions, and offer helpful solutions to your coding problems.
 
 > **Important Note:**
-I am planning to use a database approach in this plugin to save users' API tokens. This is because many users ask the same question multiple times, and there are also many users. If a database system is implemented, instead of generating a response from the OpenAI API for the same question, the plugin will fetch the response from the database and save the tokens of many users. However, this approach requires funding to host the database, and as a student, I don't have enough money to maintain or set it up. If you could provide support, it would be possible. Please provide your feedback on this approach on the GitHub repository or in the review section.
+I am planning to use a database approach in this plugin to save users' API tokens. This is because many users ask the same question multiple times, and there are also many users. If a database system is implemented, instead of generating a response from the OpenAI API for the same question, the plugin will fetch the response from the database and save the tokens of many users. However, this approach requires funding to host the database, and as a student, I don't have enough money to maintain or set it up. If you could provide support, it would be possible. or you will manage, no need of it? Please provide your feedback on this approach on the GitHub repository or in the review section.
 
 
 <details>
@@ -22,8 +22,9 @@ I am planning to use a database approach in this plugin to save users' API token
         <ul>
             <li>Almost every encountered bugs are fixed 😴</li>
             <li>some internal improvement and changes</li>
-            <li>Fixed chats saving issue</li>
+            <li>Fixed chats saving issue by Mayank Sharma</li>
             <li>Improved error readability</li>
+            <li>Rewrite whole styling with help of existing one by <a href="https://github.com/legendSabbir">LegendSabbir</a></li>
         </ul>
     </details>
     <details>
@@ -102,7 +103,11 @@ Chat GPT for Acode is developed by two skilled developers:
 
 Chat GPT is an open-source plugin with many contributors who have not only fixed bugs but also contributed their work. They are:
 
+<a href="https://github.com/legendSabbir" target="blank"><img style="height:30px;width:30px;border-radius:50%;" src="https://avatars.githubusercontent.com/u/123853512?v=4" alt="legendSabbir"/></a>
 <a href="https://github.com/PatAbah" target="blank"><img style="height:30px;width:30px;border-radius:50%;" src="https://avatars.githubusercontent.com/u/34959120?v=4" alt="PatAbah"/></a>
+
+[![Forkers for @bajrangCoder/acode-plugin-chatgpt](https://reporoster.com/forks/bajrangCoder/acode-plugin-chatgpt)](https://github.com/bajrangCoder/acode-plugin-chatgpt/network/members)
+
 
 ## Features
 - User-friendly interface for easy communication with AI

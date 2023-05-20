@@ -7,7 +7,6 @@
   "icon": "icon.png",
   "files": [
     "assets/chatgpt_avatar.svg",
-    "assets/send.svg",
     "assets/user_avatar.png",
     "assets/github-dark.css",
     "assets/highlight.min.js",
