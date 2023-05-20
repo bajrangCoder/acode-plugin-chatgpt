@@ -83,7 +83,7 @@ I am planning to use a database approach in this plugin to save users' API token
             <li>Merged Pull request(now user are allowed to select their prompt)</li>
         </ul>
     </details>
-</details><br>
+</details>
 
 ## Core Developers
 
@@ -101,13 +101,7 @@ Chat GPT for Acode is developed by two skilled developers:
 
 ## Contributers
 
-Chat GPT is an open-source plugin with many contributors who have not only fixed bugs but also contributed their work. They are:
-
-<a href="https://github.com/legendSabbir" target="blank"><img style="height:30px;width:30px;border-radius:50%;" src="https://avatars.githubusercontent.com/u/123853512?v=4" alt="legendSabbir"/></a>
-<a href="https://github.com/PatAbah" target="blank"><img style="height:30px;width:30px;border-radius:50%;" src="https://avatars.githubusercontent.com/u/34959120?v=4" alt="PatAbah"/></a>
-
 [![Forkers for @bajrangCoder/acode-plugin-chatgpt](https://reporoster.com/forks/bajrangCoder/acode-plugin-chatgpt)](https://github.com/bajrangCoder/acode-plugin-chatgpt/network/members)
-
 
 ## Features
 - User-friendly interface for easy communication with AI
