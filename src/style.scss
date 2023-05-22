@@ -155,17 +155,47 @@
     line-height: 1.5;
     overflow: hidden;
     user-select: text;
+    /*
+    code block in ai response
+    */
     .codeBlock {
       border: 2px solid var(--border-color);
       width: 100%;
       border-radius: 5px;
-      padding: 12px;
       overflow-x: auto;
+      position: relative;
       
-      &::-webkit-scrollbar { height: 10px; }
-      &::-webkit-scrollbar-thumb { 
-        background: lightgray;
-        border-radius: 4px;
+      .copy-button{
+        position: absolute;
+        top: 4px;
+        right: 8px;
+        border: none;
+        outline: none;
+        border-radius: 8px;
+        height: 24px;
+        width: 28px;
+        color: lightgray;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        background: rgb(26,34,46);
+        box-shadow: 0 4px 0 #1b232f;
+        transition: all 0.3s ease-in-out;
+        &:active{
+          box-shadow: 0;
+          color: gray;
+        }
+      }
+      .codesArea{
+        box-sizing: border-box;
+        padding: 12px;
+        margin-bottom: 0;
+        &::-webkit-scrollbar { height: 10px; }
+        &::-webkit-scrollbar-thumb { 
+          background: lightgray;
+          border-radius: 4px;
+        }
       }
     }
     
@@ -333,7 +363,7 @@
     display: flex;
     background-color: var(--popup-background-color);
     box-shadow: 0px -2px 4px var(--box-shadow-color);
-    z-index: 5;
+    z-index: 1;
   }
   
   .chatTextarea {
