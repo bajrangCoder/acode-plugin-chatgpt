@@ -4,6 +4,7 @@ import style from "./style.scss";
 import { Configuration, OpenAIApi } from "openai";
 import { base64StringToBlob } from "blob-util";
 import { v4 as uuidv4 } from 'uuid';
+import copy from 'copy-to-clipboard';
 
 const multiPrompt = acode.require('multiPrompt');
 const fs = acode.require('fs');
@@ -12,7 +13,7 @@ const helpers = acode.require("helpers");
 const loader = acode.require("loader");
 const sidebarApps = acode.require('sidebarApps');
 const toInternalUrl = acode.require('toInternalUrl');
-
+const { editor } = editorManager 
 
 const AI_HISTORY_PATH = window.DATA_STORAGE + "chatgpt";
 
@@ -21,7 +22,10 @@ let CURRENT_SESSION_FILEPATH = null;
 class Chatgpt {
 
   async init($page) {
-    // Load external stylesheet and script
+    /**
+     * Scripts and styles for Highlighting 
+     * and formating ai response 
+     */
     this.$githubDarkFile = tag("link", {
       rel: "stylesheet",
       href: this.baseUrl + "assets/github-dark.css"
@@ -32,58 +36,29 @@ class Chatgpt {
     this.$markdownItFile = tag("script", {
       src: this.baseUrl + "assets/markdown-it.min.js"
     });
-    document.head.append(this.$githubDarkFile, this.$higlightJsFile, this.$markdownItFile)
-
-    editorManager.editor.commands.addCommand({
+    // Global styles
+    this.$style = tag("style", {
+      textContent: style,
+    });
+    document.head.append(this.$githubDarkFile, this.$higlightJsFile, this.$markdownItFile, this.$style)
+    
+    /**
+     * Adding command for starting chatgpt 
+     * And updating its token
+     */
+     
+    editor.commands.addCommand({
       name: "chatgpt",
       description: "Chat GPT",
       exec: this.run.bind(this),
     });
-
-    // command for updating api key
-    editorManager.editor.commands.addCommand({
+    
+    editor.commands.addCommand({
       name: "chatgpt_update_token",
       description: "Update Chat GPT Token",
       exec: this.updateApiToken.bind(this),
     });
-
-    // add a sidebar app for image generator ai
-    acode.addIcon('chatgpt_ai_img', this.baseUrl + 'assets/chatgpt_avatar.svg');
-    sidebarApps.add('chatgpt_ai_img', 'dall-e-ai', 'Image Generator AI', (app) => {
-      const headingS = tag("h2", {
-        textContent: "Image Generator",
-        className: "sidebar-ai-heading"
-      });
-      this.$promtArea = tag("textarea", {
-        placeholder: "Type your prompt here...",
-        rows: "4",
-        className: "prompt-area",
-        maxlength: 1000,
-      });
-      this.$sizeSelector = tag("select", {
-        className: "size-selector"
-      });
-      this.$sizeSelector.innerHTML = `<optgroup label="Select size of Image">
-                                  <option value="256x256">256x256</option>
-                                  <option value="512x512">512x512</option>
-                                  <option value="1024x1024" selected>1024x1024</option>
-                                </optgroup>`;
-      this.$generatorBtn = tag("button", {
-        textContent: "Generate",
-        className: "generatorBtn",
-      });
-      this.$generatedImg = tag("img", {
-        className: "img-fluid",
-        src: ""
-      });
-      this.$mainSideBarCont = tag("div", {
-        className: "main-sidebar-cont"
-      });
-      this.$generatorBtn.addEventListener("click", this.generateImage.bind(this));
-      this.$mainSideBarCont.append(...[headingS, this.$promtArea, this.$sizeSelector, this.$generatorBtn, this.$generatedImg]);
-      app.append(this.$mainSideBarCont);
-    });
-
+    
     $page.id = "acode-plugin-chatgpt";
     $page.settitle("Chat GPT");
     this.$page = $page;
@@ -101,15 +76,12 @@ class Chatgpt {
         action: "new-chat"
       }
     });
-    this.$page.header.append(...[newChatBtn, menuBtn]);
+    this.$page.header.append(newChatBtn, menuBtn);
 
     menuBtn.onclick = this.myHistory.bind(this);
     newChatBtn.onclick = this.newChat.bind(this);
 
-    this.$style = tag("style", {
-      textContent: style,
-    });
-    document.head.append(this.$style);
+    
     const mainApp = tag("div", {
       className: "mainApp",
     });
@@ -130,11 +102,60 @@ class Chatgpt {
       className: "sendBtn",
     });
     this.$sendBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14L21 3m0 0l-6.5 18a.55.55 0 0 1-1 0L10 14l-7-3.5a.55.55 0 0 1 0-1L21 3"/></svg>`;
-    this.$inputBox.append(...[this.$chatTextarea, this.$sendBtn]);
-    mainApp.append(...[this.$inputBox, this.$chatBox])
+    this.$inputBox.append(this.$chatTextarea, this.$sendBtn);
+    mainApp.append(this.$inputBox, this.$chatBox)
     this.$page.append(mainApp);
     // array for storing prompts
     this.$promptsArray = [];
+    
+    
+    
+    /**
+     * IMAGE GENERATOR Using 
+     * DALL-E 
+     */
+    acode.addIcon('chatgpt_ai_img', this.baseUrl + 'assets/chatgpt_avatar.svg');
+    sidebarApps.add('chatgpt_ai_img', 'dall-e-ai', 'Image Generator AI', (app) => {
+      
+      // sidebar title
+      const headingS = tag("h2", {
+        textContent: "Image Generator",
+        className: "sidebar-ai-heading"
+      });
+      
+      this.$promtArea = tag("textarea", {
+        placeholder: "Type your prompt here...",
+        rows: "4",
+        className: "prompt-area",
+        maxlength: 1000,
+      });
+      
+      this.$sizeSelector = tag("select", {
+        className: "size-selector"
+      });
+      
+      this.$sizeSelector.innerHTML = `
+        <optgroup label="Select size of Image">
+          <option value="256x256">256x256</option>
+          <option value="512x512">512x512</option>
+          <option value="1024x1024" selected>1024x1024</option>
+        </optgroup>`;
+      
+      this.$generatorBtn = tag("button", {
+        textContent: "Generate",
+        className: "generatorBtn",
+      });
+      this.$generatedImg = tag("img", {
+        className: "img-fluid",
+        src: ""
+      });
+      this.$mainSideBarCont = tag("div", {
+        className: "main-sidebar-cont"
+      });
+      this.$generatorBtn.addEventListener("click", this.generateImage.bind(this));
+      this.$mainSideBarCont.append(headingS, this.$promtArea, this.$sizeSelector, this.$generatorBtn, this.$generatedImg);
+      app.append(this.$mainSideBarCont);
+    });
   }
 
   async generateImage() {
@@ -223,11 +244,10 @@ class Chatgpt {
           }],
           "https://platform.openai.com/account/api-keys"
         );
-        if(!tokenPrompt) return;
         token = tokenPrompt["token"];
         window.localStorage.setItem("chatgpt-api-key", token);
       }
-
+      
       this.$openai = new OpenAIApi(new Configuration({ apiKey: token }));
       this.$mdIt = window.markdownit({
         html: false,
@@ -237,20 +257,16 @@ class Chatgpt {
         typographer: false,
         quotes: '“”‘’',
         highlight: function(str, lang) {
-          const copyBtn = `<button class="copy-button"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" height="1.5em" width="1.5em"><path fill="currentColor" d="M15 37.95q-1.25 0-2.125-.875T12 34.95v-28q0-1.25.875-2.125T15 3.95h22q1.25 0 2.125.875T40 6.95v28q0 1.25-.875 2.125T37 37.95Zm0-3h22v-28H15v28Zm-6 9q-1.25 0-2.125-.875T6 40.95V12.3q0-.65.425-1.075Q6.85 10.8 7.5 10.8q.65 0 1.075.425Q9 11.65 9 12.3v28.65h22.2q.65 0 1.075.425.425.425.425 1.075 0 .65-.425 1.075-.425.425-1.075.425Zm6-37v28-28Z"/></svg></button>`;
+          const copyBtn = document.createElement("button")
+          copyBtn.classList.add("copy-button")
+          copyBtn.innerHTML = `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" height="1.5em" width="1.5em"><path fill="currentColor" d="M15 37.95q-1.25 0-2.125-.875T12 34.95v-28q0-1.25.875-2.125T15 3.95h22q1.25 0 2.125.875T40 6.95v28q0 1.25-.875 2.125T37 37.95Zm0-3h22v-28H15v28Zm-6 9q-1.25 0-2.125-.875T6 40.95V12.3q0-.65.425-1.075Q6.85 10.8 7.5 10.8q.65 0 1.075.425Q9 11.65 9 12.3v28.65h22.2q.65 0 1.075.425.425.425.425 1.075 0 .65-.425 1.075-.425.425-1.075.425Zm6-37v28-28Z"/></svg>`
+          copyBtn.setAttribute("data-str", str)
           const codesArea = `<pre class="hljs codesArea"><code>${hljs.highlightAuto(str).value}</code></pre>`;
-          const codeBlock = `<div class="codeBlock">${copyBtn}${codesArea}</div>`;
-          //copyBtn.onclick = this._copyCodeUtility.bind(this);
-          document.querySelector(".copy-button").addEventListener("click", (e) => {
-            window.alert("hi")
-          })
+          const codeBlock = `<div class="codeBlock">${copyBtn.outerHTML}${codesArea}</div>`;
           return codeBlock;
         }
       });
-      /*const buttons = document.getElementsByClassName("copy-button");
-      Array.from(buttons).forEach(button => {
-        button.addEventListener("click", this._copyCodeUtility.bind(this));
-      });*/
+      
       this.$sendBtn.addEventListener("click", this.sendQuery.bind(this))
 
       this.$page.show();
@@ -513,6 +529,11 @@ class Chatgpt {
       className: 'ai_message'
     });
     msg.innerHTML = this.$mdIt.render(message)
+    const copyBtn = msg.querySelector(".copy-button")
+    copyBtn?.addEventListener("click", function (){
+      copy(this.dataset.str)
+      window.toast("Copied to clipboard", 3000)
+    })
     chat.append(...[profileImg, msg]);
     gptChatBox.append(chat);
     this.$chatBox.appendChild(gptChatBox);
