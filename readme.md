@@ -1,17 +1,9 @@
 # Chat GPT
 
-<div style="padding:10px;border:1px solid #f78300;border-radius:8px; background: #f4a76dec;color:#fff;">
-<strong>⚠️ Important note</strong><br>
-If you face any issue or error or you want to report bugs, Please report these things in github repo of this plugin. Because on Acode website i am not able to reply or help you , Due to bugs and limitations. That's why I am not replying to your reviews. But you can provide good feedback on acode review page for new users.
-<br><strong>Hope you understand ❤️❤️</strong>
-</div>
-<br>
+> **⚠️ Important note**
+If you face any issue or error or you want to report bugs, Please report these things in github repo of this plugin. Because on Acode website i am not able to reply or help you , Due to bugs and limitations. That's why I am not replying to your reviews. But you can provide good feedback on acode review page for new users. Hope you understand ❤️❤️
 
 **Chat GPT** is an advanced artificial intelligence developed by [OpenAi](https://openai.com/) and we have added it in form of plugin for **Acode**, developed to enhance your productivity while coding. With this plugin, you can communicate with an AI-powered virtual assistant that can remember your previous responses, provide contextual suggestions, and offer helpful solutions to your coding problems.
-
-> **Important Note:**
-I am planning to use a database approach in this plugin to save users' API tokens. This is because many users ask the same question multiple times, and there are also many users. If a database system is implemented, instead of generating a response from the OpenAI API for the same question, the plugin will fetch the response from the database and save the tokens of many users. However, this approach requires funding to host the database, and as a student, I don't have enough money to maintain or set it up. If you could provide support, it would be possible. or you will manage, no need of it? Please provide your feedback on this approach on the GitHub repository or in the review section.
-
 
 <details>
     <summary>Updates 🤩🤩</summary>
@@ -85,7 +77,8 @@ I am planning to use a database approach in this plugin to save users' API token
     </details>
 </details>
 
-## Core Developers
+Core Developers
+-----------
 
 Chat GPT for Acode is developed by two skilled developers:
 <ul style="list-style:none;">
@@ -99,11 +92,18 @@ Chat GPT for Acode is developed by two skilled developers:
   </li>
 </ul>
 
-## Contributers
 
-[![Forkers for @bajrangCoder/acode-plugin-chatgpt](https://reporoster.com/forks/bajrangCoder/acode-plugin-chatgpt)](https://github.com/bajrangCoder/acode-plugin-chatgpt/network/members)
+Contributers
+-----------
 
-## Features
+<a href="https://github.com/bajrangCoder/acode-plugin-chatgpt/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=bajrangCoder/acode-plugin-chatgpt" />
+</a>
+
+
+Features
+-----------
+
 - User-friendly interface for easy communication with AI
 - AI remembers previous responses to provide more personalized suggestions
 - Provides helpful solutions to coding problems
