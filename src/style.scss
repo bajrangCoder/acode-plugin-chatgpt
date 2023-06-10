@@ -12,6 +12,7 @@
     padding-bottom: 15px;
   }
   .prompt-area{
+    width: 100%;
     font: initial;
     font-size: 0.9rem;
     padding: 10px;
@@ -22,7 +23,6 @@
     resize: none;
     margin-bottom: 8px;
     background: transparent;
-    width: 100%;
     
     &:focus-visible { border-color: var(--button-background-color); }
   }

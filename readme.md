@@ -1,12 +1,24 @@
-# Chat GPT
+Chat GPT
+=========
+
+> Note: This update is only supported on Acode version - 1.8.4(281) and above.
 
 > **⚠️ Important note**
-If you face any issue or error or you want to report bugs, Please report these things in github repo of this plugin. Because on Acode website i am not able to reply or help you , Due to bugs and limitations. That's why I am not replying to your reviews. But you can provide good feedback on acode review page for new users. Hope you understand ❤️❤️
+If you face any issue or error or you want to report bugs, Please report these things in github repo of this plugin with a detailed description. Hope you understand ❤️❤️
 
 **Chat GPT** is an advanced artificial intelligence developed by [OpenAi](https://openai.com/) and we have added it in form of plugin for **Acode**, developed to enhance your productivity while coding. With this plugin, you can communicate with an AI-powered virtual assistant that can remember your previous responses, provide contextual suggestions, and offer helpful solutions to your coding problems.
 
 <details>
     <summary>Updates 🤩🤩</summary>
+    <details>
+        <summary>
+            <code><strong>v1.0.9</strong></code>
+        </summary>
+        <ul>
+            <li>Added copy button</li>
+            <li>fixed sidebar issue after uninstall</li>
+        </ul>
+    </details>
     <details>
         <summary>
             <code><strong>v1.0.8</strong></code>
@@ -80,7 +92,7 @@ If you face any issue or error or you want to report bugs, Please report these t
 Core Developers
 -----------
 
-Chat GPT for Acode is developed by two skilled developers:
+Chat GPT plugin development is started by below devs but Now many contributors are working to improve it.
 <ul style="list-style:none;">
   <li style="display:flex; flex-direction:row;align-items:center;gap:8px;margin-bottom:8px;">
     <img style="height:40px;width:40px;border-radius:50%;border:1px solid #777777f8" src="https://avatars.githubusercontent.com/u/71929976?v=4" alt="Raunak Raj"/>
