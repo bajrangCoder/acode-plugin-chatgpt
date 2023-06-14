@@ -6,10 +6,20 @@ Chat GPT
 > **⚠️ Important note**
 If you face any issue or error or you want to report bugs, Please report these things in github repo of this plugin with a detailed description. Hope you understand ❤️❤️
 
-**Chat GPT** is an advanced artificial intelligence developed by [OpenAi](https://openai.com/) and we have added it in form of plugin for **Acode**, developed to enhance your productivity while coding. With this plugin, you can communicate with an AI-powered virtual assistant that can remember your previous responses, provide contextual suggestions, and offer helpful solutions to your coding problems.
+**Chat GPT** is an advanced artificial intelligence developed by [OpenAi](https://openai.com/) and we have added it in form of plugin for **Acode**, developed to enhance your productivity while coding. With this plugin, you can communicate with an AI-powered virtual assistant that can remember your previous responses, provide contextual suggestions, and offer helpful solutions to your coding problems. You can also ask Acode related doubt and problems.
 
 <details>
     <summary>Updates 🤩🤩</summary>
+    <details>
+        <summary>
+            <code><strong>v1.1.0</strong></code>
+        </summary>
+        <ul>
+            <li>Improved chatting experience</li>
+            <li>internal improvement and added a shortcut to open chatgpt - <kbd>Ctrl-Shift-C</kbd></li>
+            <li>Now you can also ask doubt related to Acode to Chatgpt</li>
+        </ul>
+    </details>
     <details>
         <summary>
             <code><strong>v1.0.9</strong></code>
@@ -123,6 +133,7 @@ Features
 - View Chat History
 - Syntax highlighting and markdown styling, etc
 - Generate images with your prompts
+- Can answer to doubt related to Acode
 
 ### Important Links
 - [Github Issue Page](https://github.com/bajrangCoder/acode-plugin-chatgpt/issues)
@@ -131,7 +142,7 @@ Features
 - [Acode](https://acode.foxdebug.com)
 
 ## How to use:
-To use Chat GPT, simply search for `"Chat GPT"` in the **command palette (•••)** to open the chat interface. From there, you can communicate with the AI and receive helpful suggestions and solutions. 
+To use Chat GPT, simply search for `"Chat GPT"` in the **command palette (•••)** to open the chat interface or use this shortcut <kbd>Ctrl-Shift-C</kbd>. From there, you can communicate with the AI and receive helpful suggestions and solutions. 
 
 To update your token, simply type `"Chat GPT update token"`.
 

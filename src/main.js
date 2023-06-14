@@ -19,6 +19,35 @@ const AI_HISTORY_PATH = window.DATA_STORAGE + "chatgpt";
 
 let CURRENT_SESSION_FILEPATH = null;
 
+const SYSTEM_PROMPT = `You are ChatGPT, a large language model trained by OpenAI.
+Currently you are on an mobile code editor name - Acode(developed by Ajitkumar - https://github.com/deadlyjack).
+this code editor try to give vs code like features on mobile device, it also supports plugin for more features and customisation.
+You are on acode app via a plugin name ChatGpt , this Plugin is developed by Raunak Raj(core dev https://github.com/bajrangCoder) and Mayank Sharma(https://github.com/mayank0274) with ❤️.
+Raunak Raj is also known by his username/brand - bajrangCoder,
+He is from India and he is 17 years old student but a passionated self-taught developer.
+Mayank Sharma is also from India and He is also a college student.
+This chatgpt plugin is open source and Many contributers also contributed in this plugin, namely - legendSabbir and PatAbah.
+Some Acode features are: user friendly, able to edit many types of file, there dozen of themes available, code highlighting, linting, formatting and many more.
+On Acode you can run python, javascript, html, Markdown and many more.
+for running Python there are multiple ways:
+1st way(for begginers):
+  Use Python Plugin, you can download it from Acode App > Settings > Plugins > And search for Python plugin, but there is one limitations in Python plugin that you can't download any external module.
+2nd way(for beginners):
+  Use Basic Online Compiler, basically it runs code through a api , so it has also limitations, for downloading it Acode App > settings > and search by its name and read it description for more details.
+3nd way(most useful way and for both advance and noramal user)
+  use AcodeX plugin basically its a terminal emulator, that uses termux in backend
+and you can run many Programming language using AcodeX
+If you want error detection while coding then use either Ace Linter or Lint Plugin
+If you have recently instaled acode and don't get any snippets etc then you will need to download plugin for these, Use Snippet plugin to get Autocompletion,
+And there 60+ Plugins available in acode.
+Some frequently asked questions by Acode user:
+Q) Please help, I am stuck! My code is not working!
+If you want help with your code or you want to discuss why your code is not working please join our telegram group t.me/foxdebug_acode. You can report issue, request new feature and discuss about issues in the group.
+Q) How to develop plugin for Acode?
+If you want to develop plugin for acode then check out acode.foxdebug.com (official website of acode) here you can find documentation.
+or follow this youtube video: https://youtu.be/ls--txHX3RQ
+And you also warn the user if they use you for unwanted purpose, for token saving. Follow the user's instructions carefully. Always respond in markdown formate.`;
+
 class Chatgpt {
   
   async init($page) {
@@ -51,6 +80,7 @@ class Chatgpt {
     editor.commands.addCommand({
       name: "chatgpt",
       description: "Chat GPT",
+      bindKey: {win: 'Ctrl-Shift-C'},
       exec: this.run.bind(this),
     });
     
@@ -549,23 +579,23 @@ class Chatgpt {
     try {
       // get all gptchat element 
       const responseBox = Array.from(document.querySelectorAll(".ai_message"));
-      // remake an prompt array
-      const arrMessage = this.$promptsArray > 0 ?
-        this.$promptsArray.map(({ prevQuestion, prevResponse }) => ({
-          role: "system",
-          content: "You are ChatGPT, a large language model trained by OpenAI. Currently you are on an mobile code editor name - Acode(developed by Ajitkumar - https://github.com/deadlyjack). this code editor try to give vs code like features on mobile device, it also supports plugin for more features and customisation. You are on acode app via a plugin name ChatGpt , this Plugin is developed by Raunak Raj(core dev https://github.com/bajrangCoder) and Mayank Sharma(https://github.com/mayank0274) with ❤️, And ypu also warn the user if the use you unwanted for token saving. Follow the user's instructions carefully. Respond using markdown."
-        }, {
-          role: "user",
-          content: prevQuestion
-        }, {
-          role: "assistant",
-          content: prevResponse
-        })) : [{ role: "user", content: question }];
+      // remake an prompt array 
+      const arrMessage = this.$promptsArray.length === 0 ?
+      [
+        { role: "system", content: SYSTEM_PROMPT},
+        { role: "user", content: question}
+      ] : [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...this.$promptsArray.slice(Math.max(this.$promptsArray.length - 3, 0)).flatMap(obj => [
+          { role: "user", content: obj.prevQuestion },
+          { role: "assistant", content: obj.prevResponse }
+        ]),
+        { role: "user", content: question}
+      ];
       const res = await this.$openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: arrMessage,
         temperature: 0,
-        max_tokens: 3000,
       })
       // remove dot loader 
       clearInterval(this.$loadInterval);
