@@ -1,47 +1,37 @@
 {
-  "name": "acode-plugin-chatgpt",
-  "version": "1.0.9",
-  "description": "Latest Plugin Template For Acode",
+  "name": "acode-plugin-ai-assistant",
+  "version": "2.0.0",
+  "description": "AI Plugin",
   "main": "dist/main.js",
   "scripts": {
-    "start-dev": "node .devServer/start-dev",
-    "build": "webpack && node pack-zip.js",
-    "build-release": "webpack --mode production && node pack-zip.js"
+    "build": "node build.mjs"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bajrangCoders/acode-plugin-template.git"
+    "url": "git+https://github.com/bajrangCoders/acode-plugin-chatgpt.git"
   },
   "author": "Raunak Raj",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/bajrangCoders/acode-plugin-template/issues"
-  },
-  "homepage": "https://github.com/bajrangCoders/acode-plugin-template#readme",
   "dependencies": {
-    "@babel/cli": "^7.19.3",
-    "@babel/core": "^7.20.5",
-    "@babel/plugin-transform-runtime": "^7.19.6",
-    "@babel/preset-env": "^7.20.2",
-    "autoprefixer": "^10.4.13",
-    "axios": "^1.3.4",
-    "babel-loader": "^9.1.0",
+    "@langchain/anthropic": "^0.2.0",
+    "@langchain/cloudflare": "^0.0.6",
+    "@langchain/community": "^0.2.5",
+    "@langchain/core": "^0.2.5",
+    "@langchain/google-genai": "^0.0.16",
+    "@langchain/mistralai": "^0.0.23",
+    "@langchain/openai": "^0.1.1",
     "blob-util": "^2.0.2",
     "copy-to-clipboard": "^3.3.3",
     "highlight.js": "^11.7.0",
     "html-tag-js": "^1.1.22",
-    "ip": "^1.1.8",
-    "jszip": "^3.10.1",
-    "live-server": "^1.2.2",
+    "langchain": "^0.2.4",
     "markdown-it": "^13.0.1",
     "openai": "^3.2.1",
-    "postcss": "^8.4.21",
-    "postcss-loader": "^7.0.2",
-    "raw-loader": "^4.0.2",
-    "sass": "^1.57.1",
-    "sass-loader": "^13.2.0",
-    "uuid": "^9.0.0",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.1"
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.4",
+    "esbuild-sass-plugin": "^3.3.0",
+    "jszip": "^3.10.1"
   }
 }

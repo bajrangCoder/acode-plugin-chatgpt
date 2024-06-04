@@ -2,13 +2,13 @@ const path = require('path');
 const fs = require('fs');
 const jszip = require('jszip');
 
-const iconFile = path.join(__dirname, './icon.png');
-const pluginJSON = path.join(__dirname, './plugin.json');
-const distFolder = path.join(__dirname, './dist');
-let readmeDotMd = path.join(__dirname, './readme.md');
+const iconFile = path.join(__dirname, '../icon.png');
+const pluginJSON = path.join(__dirname, '../plugin.json');
+const distFolder = path.join(__dirname, '../dist');
+let readmeDotMd = path.join(__dirname, '../readme.md');
 
 if (!fs.existsSync(readmeDotMd)) {
-  readmeDotMd = path.join(__dirname, './readme.md');
+  readmeDotMd = path.join(__dirname, '../README.md');
 }
 
 // create zip file of dist folder
@@ -23,7 +23,7 @@ loadFile('', distFolder);
 
 zip
   .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
-  .pipe(fs.createWriteStream(path.join(__dirname, './dist.zip')))
+  .pipe(fs.createWriteStream(path.join(__dirname, '../AcodeX.zip')))
   .on('finish', () => {
     console.log('dist.zip written.');
   });
