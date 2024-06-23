@@ -9,7 +9,9 @@ let result = await esbuild.build({
     logLevel: 'info',
     color: true,
     outdir: "dist",
-    plugins: [sassPlugin()]
+    plugins: [sassPlugin({
+      type: "css-text",
+    })]
 });
 
 exec("node .vscode/pack-zip.js", (err, stdout, stderr) => {
