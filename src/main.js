@@ -27,6 +27,7 @@ const helpers = acode.require("helpers");
 const loader = acode.require("loader");
 const sidebarApps = acode.require("sidebarApps");
 const toInternalUrl = acode.require("toInternalUrl");
+const contextMenu = acode.require("contextMenu");
 const { editor } = editorManager;
 
 const AI_HISTORY_PATH = window.DATA_STORAGE + "chatgpt";
@@ -87,6 +88,13 @@ class AIAssistant {
         action: "toggle-menu",
       },
     });
+    
+    const historyBtn = tag("span", {
+      className: "icon historyrestore",
+      dataset: {
+        action: "history"
+      }
+    });
 
     // button for new chat
     const newChatBtn = tag("span", {
@@ -95,10 +103,78 @@ class AIAssistant {
         action: "new-chat",
       },
     });
-    this.$page.header.append(newChatBtn, menuBtn);
+    this.$page.header.append(newChatBtn, historyBtn, menuBtn);
 
-    menuBtn.onclick = this.myHistory.bind(this);
+    historyBtn.onclick = this.myHistory.bind(this);
     newChatBtn.onclick = this.newChat.bind(this);
+    
+    const contextMenuOption = {
+      top: '35px',
+      right: '10px',
+      toggler: menuBtn,
+      transformOrigin: 'top right',
+    };
+    const $menu = contextMenu({
+      innerHTML: () => {
+        return `
+        <li action="model-provider" provider="">Provider: ${window.localStorage.getItem("ai-assistant-provider")}</li>
+        <li action="model" modelNme="">Model: ${window.localStorage.getItem("ai-assistant-model-name")}</li>
+        `;
+      },
+      ...contextMenuOption
+    })
+    $menu.onclick = async (e) => {
+      $menu.hide();
+      const action = e.target.getAttribute('action');
+      switch (action) {
+        case 'model-provider':
+          let previousProvider = window.localStorage.getItem("ai-assistant-provider");
+          let providerSelectBox = await select("Select AI Provider", AI_PROVIDERS, {
+            default: previousProvider || ""
+          });
+          if(previousProvider != providerSelectBox) {
+            // check for api key 
+            if(window.localStorage.getItem(providerSelectBox) === null) {
+              let apiKey =
+                providerSelectBox == AI_PROVIDERS[3]
+                  ? "No Need Of API Key"
+                  : await prompt("API key of selected provider", "", "text", {
+                      required: true,
+                    });
+              if (!apiKey) return;
+              loader.showTitleLoader();
+              window.toast("Fetching available models from your account", 2000);
+              let modelList = await getModelsFromProvider(providerSelectBox, apiKey);
+              loader.removeTitleLoader();
+              let modelNme = await select("Select AI Model", modelList);
+              window.localStorage.setItem("ai-assistant-provider", providerSelectBox);
+              window.localStorage.setItem("ai-assistant-model-name", modelNme);
+              await this.apiKeyManager.saveAPIKey(providerSelectBox, apiKey);
+              this.initiateModel(providerSelectBox, apiKey, modelNme);
+              this.newChat();
+            } else {
+              let apiKey = await this.apiKeyManager.getAPIKey(providerSelectBox);
+              this.initiateModel(providerSelectBox, apiKey, window.localStorage.getItem("ai-assistant-model-name"));
+              this.newChat();
+            }
+          }
+          break;
+        case 'model':
+          loader.showTitleLoader();
+          window.toast("Fetching available models from your account", 2000);
+          let apiKey = await this.apiKeyManager.getAPIKey(window.localStorage.getItem("ai-assistant-provider"));
+          let modelList = await getModelsFromProvider(window.localStorage.getItem("ai-assistant-provider"), apiKey);
+          loader.removeTitleLoader();
+          let modelNme = await select("Select AI Model", modelList, {
+            default: window.localStorage.getItem("ai-assistant-model-name") || ""
+          });
+          if(window.localStorage.getItem("ai-assistant-model-name") != modelNme) {
+            window.localStorage.setItem("ai-assistant-model-name", modelNme);
+            this.initiateModel(window.localStorage.getItem("ai-assistant-provider"), apiKey, modelNme);
+          }
+          break;
+      }
+    }
 
     const mainApp = tag("div", {
       className: "mainApp",
@@ -186,41 +262,7 @@ class AIAssistant {
 
       let model = window.localStorage.getItem("ai-assistant-model-name");
 
-      switch (providerNme) {
-        case AI_PROVIDERS[0]:
-          this.modelInstance = new ChatOpenAI({ apiKey: token, model });
-          break;
-        case AI_PROVIDERS[1]:
-          this.modelInstance = new ChatGoogleGenerativeAI({
-            model,
-            apiKey: token,
-            safetySettings: [
-              {
-                category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-                threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-              },
-            ],
-          });
-          break;
-        case AI_PROVIDERS[2]:
-          this.modelInstance = new ChatOpenAI({
-            apiKey: token,
-            model,
-            azureOpenAIBasePath: "https://api.deepseek.com/v1",
-          });
-          break;
-        case AI_PROVIDERS[3]:
-          this.modelInstance = new ChatOllama({ model });
-          break;
-        case AI_PROVIDERS[4]:
-          this.modelInstance = new ChatGroq({
-            apiKey: token,
-            model,
-          });
-          break;
-        default:
-          throw new Error("Unknown provider");
-      }
+      this.initiateModel(providerNme, token, model)
       this.$mdIt = window.markdownit({
         html: false,
         xhtmlOut: false,
@@ -247,6 +289,51 @@ class AIAssistant {
     } catch (e) {
       console.log(e);
     }
+  }
+  
+  initiateModel(providerNme, token, model) {
+    switch (providerNme) {
+        case AI_PROVIDERS[0]:
+          this.modelInstance = new ChatOpenAI({ apiKey: token, model });
+          break;
+        case AI_PROVIDERS[1]:
+          this.modelInstance = new ChatGoogleGenerativeAI({
+            model,
+            apiKey: token,
+            safetySettings: [
+              {
+                category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+                threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+              },
+            ],
+          });
+          break;
+        case AI_PROVIDERS[2]:
+          this.modelInstance = new ChatOpenAI({
+            apiKey: token,
+            model,
+            azureOpenAIBasePath: "https://api.deepseek.com/v1",
+          });
+          break;
+        case AI_PROVIDERS[3]:
+          // check local storage, if user want to provide custom host for ollama
+          let baseUrl = window.localStorage.getItem("Ollama-Host")
+            ? window.localStorage.getItem("Ollama-Host")
+            : "http://localhost:11434";
+          this.modelInstance = new ChatOllama({
+            baseUrl,
+            model
+          });
+          break;
+        case AI_PROVIDERS[4]:
+          this.modelInstance = new ChatGroq({
+            apiKey: token,
+            model,
+          });
+          break;
+        default:
+          throw new Error("Unknown provider");
+      }
   }
 
   _sanitizeFileName(fileName) {
@@ -541,7 +628,7 @@ class AIAssistant {
     /*
     add ai response to ui
     */
-    const ai_avatar = this.baseUrl + "icon.png";
+    const ai_avatar = this.baseUrl + "assets/ai_assistant.svg";
     const gptChatBox = tag("div", { className: "ai_wrapper" });
     const chat = tag("div", { className: "ai_chat" });
     const profileImg = tag("div", {
@@ -677,12 +764,12 @@ class AIAssistant {
     //sidebarApps.remove("dall-e-ai");
     editorManager.editor.commands.removeCommand("ai_assistant");
     //editorManager.editor.commands.removeCommand("chatgpt_update_token");
-    /*window.localStorage.removeItem(window.localStorage.getItem("ai-assistant-provider"));
+    window.localStorage.removeItem(window.localStorage.getItem("ai-assistant-provider"));
 		window.localStorage.removeItem("ai-assistant-provider");
 		window.localStorage.removeItem("ai-assistant-model-name");
 		if (await fs(window.DATA_STORAGE+"secret.key").exists()) {
 		  await fs(window.DATA_STORAGE+"secret.key").delete();
-		}*/
+		}
     this.$githubDarkFile.remove();
     this.$higlightJsFile.remove();
     this.$markdownItFile.remove();
