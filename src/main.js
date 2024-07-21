@@ -4,7 +4,7 @@ import style from "./style.scss";
 import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { ChatOllama } from "@langchain/community/chat_models/ollama";
 import { InMemoryChatMessageHistory } from "@langchain/core/chat_history";
-import { AIMessage, HumanMessage } from "@langchain/core/messages";
+import { AIMessage, HumanMessage, trimMessages } from "@langchain/core/messages";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableWithMessageHistory } from "@langchain/core/runnables";
@@ -15,7 +15,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import copy from "copy-to-clipboard";
 import { v4 as uuidv4 } from "uuid";
 import { APIKeyManager } from "./api_key";
-import { AI_PROVIDERS, copyIconSvg, sendIconSvg } from "./constants";
+import { AI_PROVIDERS, copyIconSvg, sendIconSvg, stopIconSvg } from "./constants";
 import { getModelsFromProvider } from "./utils";
 
 const multiPrompt = acode.require("multiPrompt");
@@ -28,6 +28,7 @@ const loader = acode.require("loader");
 const sidebarApps = acode.require("sidebarApps");
 const toInternalUrl = acode.require("toInternalUrl");
 const contextMenu = acode.require("contextMenu");
+const selectionMenu = acode.require("selectionMenu");
 const { editor } = editorManager;
 
 const AI_HISTORY_PATH = window.DATA_STORAGE + "chatgpt";
@@ -62,6 +63,7 @@ class AIAssistant {
       this.$style,
     );
 
+
     /**
      * Adding command for starting chatgpt
      * And updating its token
@@ -73,11 +75,11 @@ class AIAssistant {
       exec: this.run.bind(this),
     });
 
-    /*editor.commands.addCommand({
-			name: "chatgpt_update_token",
-			description: "Update Chat GPT Token",
-			exec: this.updateApiToken.bind(this)
-		});*/
+    selectionMenu.add(async () => {
+      let opt = await select("AI Actions", ["Explain Code", "Rewrite", "Generate Code"], {
+        onHide: () => { window.toast("Work is in progress...", 3000) }
+      })
+    }, "✨", 'all');
 
     $page.id = "acode-ai-assistant";
     $page.settitle("AI Assistant");
@@ -88,7 +90,7 @@ class AIAssistant {
         action: "toggle-menu",
       },
     });
-    
+
     const historyBtn = tag("span", {
       className: "icon historyrestore",
       dataset: {
@@ -103,11 +105,19 @@ class AIAssistant {
         action: "new-chat",
       },
     });
-    this.$page.header.append(newChatBtn, historyBtn, menuBtn);
+
+    const insertContextBtn = tag("span", {
+      //className: "icon linkinsert_link",
+      className: "icon insert_invitationevent",
+      dataset: {
+        action: "insert-context",
+      },
+    });
+    this.$page.header.append(newChatBtn, insertContextBtn, historyBtn, menuBtn);
 
     historyBtn.onclick = this.myHistory.bind(this);
     newChatBtn.onclick = this.newChat.bind(this);
-    
+
     const contextMenuOption = {
       top: '35px',
       right: '10px',
@@ -132,15 +142,15 @@ class AIAssistant {
           let providerSelectBox = await select("Select AI Provider", AI_PROVIDERS, {
             default: previousProvider || ""
           });
-          if(previousProvider != providerSelectBox) {
+          if (previousProvider != providerSelectBox) {
             // check for api key 
-            if(window.localStorage.getItem(providerSelectBox) === null) {
+            if (window.localStorage.getItem(providerSelectBox) === null) {
               let apiKey =
-                providerSelectBox == AI_PROVIDERS[3]
+                providerSelectBox == AI_PROVIDERS[2]
                   ? "No Need Of API Key"
                   : await prompt("API key of selected provider", "", "text", {
-                      required: true,
-                    });
+                    required: true,
+                  });
               if (!apiKey) return;
               loader.showTitleLoader();
               window.toast("Fetching available models from your account", 2000);
@@ -168,7 +178,7 @@ class AIAssistant {
           let modelNme = await select("Select AI Model", modelList, {
             default: window.localStorage.getItem("ai-assistant-model-name") || ""
           });
-          if(window.localStorage.getItem("ai-assistant-model-name") != modelNme) {
+          if (window.localStorage.getItem("ai-assistant-model-name") != modelNme) {
             window.localStorage.setItem("ai-assistant-model-name", modelNme);
             this.initiateModel(window.localStorage.getItem("ai-assistant-provider"), apiKey, modelNme);
           }
@@ -196,13 +206,14 @@ class AIAssistant {
       className: "sendBtn",
     });
     this.$sendBtn.innerHTML = sendIconSvg;
-    this.$inputBox.append(this.$chatTextarea, this.$sendBtn);
+    this.$stopGenerationBtn = tag("button", {
+      className: "stopGenerationBtn hide",
+    });
+    this.$stopGenerationBtn.innerHTML = stopIconSvg;
+    this.$stopGenerationBtn.onclick = this.stopGenerating.bind(this);
+    this.$inputBox.append(this.$chatTextarea, this.$sendBtn, this.$stopGenerationBtn);
     mainApp.append(this.$inputBox, this.$chatBox);
     this.$page.append(mainApp);
-    acode.addIcon(
-      "ai-assistant-icon",
-      this.baseUrl + "assets/ai_assistant.svg",
-    );
     this.messageHistories = {};
     this.messageSessionConfig = {
       configurable: {
@@ -239,11 +250,11 @@ class AIAssistant {
         let modelProvider = await select("Select AI Provider", AI_PROVIDERS);
         // no prompt for api key in case of ollama
         let apiKey =
-          modelProvider == AI_PROVIDERS[3]
+          modelProvider == AI_PROVIDERS[2]
             ? "No Need Of API Key"
             : await prompt("API key of selected provider", "", "text", {
-                required: true,
-              });
+              required: true,
+            });
         if (!apiKey) return;
         loader.showTitleLoader();
         window.toast("Fetching available models from your account", 2000);
@@ -275,9 +286,8 @@ class AIAssistant {
           copyBtn.classList.add("copy-button");
           copyBtn.innerHTML = copyIconSvg;
           copyBtn.setAttribute("data-str", str);
-          const codesArea = `<pre class="hljs codesArea"><code>${
-            hljs.highlightAuto(str).value
-          }</code></pre>`;
+          const codesArea = `<pre class="hljs codesArea"><code>${hljs.highlightAuto(str).value
+            }</code></pre>`;
           const codeBlock = `<div class="codeBlock">${copyBtn.outerHTML}${codesArea}</div>`;
           return codeBlock;
         },
@@ -290,50 +300,43 @@ class AIAssistant {
       console.log(e);
     }
   }
-  
+
   initiateModel(providerNme, token, model) {
     switch (providerNme) {
-        case AI_PROVIDERS[0]:
-          this.modelInstance = new ChatOpenAI({ apiKey: token, model });
-          break;
-        case AI_PROVIDERS[1]:
-          this.modelInstance = new ChatGoogleGenerativeAI({
-            model,
-            apiKey: token,
-            safetySettings: [
-              {
-                category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-                threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-              },
-            ],
-          });
-          break;
-        case AI_PROVIDERS[2]:
-          this.modelInstance = new ChatOpenAI({
-            apiKey: token,
-            model,
-            azureOpenAIBasePath: "https://api.deepseek.com/v1",
-          });
-          break;
-        case AI_PROVIDERS[3]:
-          // check local storage, if user want to provide custom host for ollama
-          let baseUrl = window.localStorage.getItem("Ollama-Host")
-            ? window.localStorage.getItem("Ollama-Host")
-            : "http://localhost:11434";
-          this.modelInstance = new ChatOllama({
-            baseUrl,
-            model
-          });
-          break;
-        case AI_PROVIDERS[4]:
-          this.modelInstance = new ChatGroq({
-            apiKey: token,
-            model,
-          });
-          break;
-        default:
-          throw new Error("Unknown provider");
-      }
+      case AI_PROVIDERS[0]:
+        this.modelInstance = new ChatOpenAI({ apiKey: token, model });
+        break;
+      case AI_PROVIDERS[1]:
+        this.modelInstance = new ChatGoogleGenerativeAI({
+          model,
+          apiKey: token,
+          safetySettings: [
+            {
+              category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+              threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+            },
+          ],
+        });
+        break;
+      case AI_PROVIDERS[2]:
+        // check local storage, if user want to provide custom host for ollama
+        let baseUrl = window.localStorage.getItem("Ollama-Host")
+          ? window.localStorage.getItem("Ollama-Host")
+          : "http://localhost:11434";
+        this.modelInstance = new ChatOllama({
+          baseUrl,
+          model
+        });
+        break;
+      case AI_PROVIDERS[3]:
+        this.modelInstance = new ChatGroq({
+          apiKey: token,
+          model,
+        });
+        break;
+      default:
+        throw new Error("Unknown provider");
+    }
   }
 
   _sanitizeFileName(fileName) {
@@ -448,15 +451,14 @@ class AIAssistant {
       const allFiles = await fs(AI_HISTORY_PATH).lsDir();
       let elems = "";
       for (let i = 0; i < allFiles.length; i++) {
-        elems += `<li class="dialog-item" style="background: var(--secondary-color);color: var(--secondary-text-color);padding: 5px;margin-bottom: 5px;border-radius: 8px;font-size:15px;display:flex;flex-direction:row;justify-content:space-between;gap:5px;" data-path="${
-          JSON.parse(JSON.stringify(allFiles[i])).url
-        }">
+        elems += `<li class="dialog-item" style="background: var(--secondary-color);color: var(--secondary-text-color);padding: 5px;margin-bottom: 5px;border-radius: 8px;font-size:15px;display:flex;flex-direction:row;justify-content:space-between;gap:5px;" data-path="${JSON.parse(JSON.stringify(allFiles[i])).url
+          }">
                   <p class="history-item">${allFiles[i].name
-                    .split("__")[0]
-                    .substring(
-                      0,
-                      25,
-                    )}...</p><div><button class="delete-history-btn" style="height:25px;width:25px;border:none;padding:5px;outline:none;border-radius:50%;background:var(--error-text-color);text-align:center;">✗</button></div>
+            .split("__")[0]
+            .substring(
+              0,
+              25,
+            )}...</p><div><button class="delete-history-btn" style="height:25px;width:25px;border:none;padding:5px;outline:none;border-radius:50%;background:var(--error-text-color);text-align:center;">✗</button></div>
                 </li>`;
       }
       return elems;
@@ -657,6 +659,14 @@ class AIAssistant {
     this.$chatBox.appendChild(gptChatBox);
   }
 
+  async stopGenerating() {
+    // Currently this doesn't works and I have no idea about , If you can , feel free to open pr
+    // it doesn't work 
+    this.abortController.abort();
+    this.$stopGenerationBtn.classList.add("hide");
+    this.$sendBtn.classList.remove("hide");
+  }
+
   async getChatgptResponse(question) {
     /*
     fetch ai response
@@ -665,6 +675,10 @@ class AIAssistant {
     try {
       // get all gptchat element
       const responseBox = Array.from(document.querySelectorAll(".ai_message"));
+      
+      this.abortController = new AbortController();
+      const { signal } = this.abortController;
+
       const prompt = ChatPromptTemplate.fromMessages([
         [
           "system",
@@ -673,14 +687,18 @@ class AIAssistant {
         ["placeholder", "{chat_history}"],
         ["human", "{input}"],
       ]);
+      
       const parser = new StringOutputParser();
       const chain = prompt.pipe(this.modelInstance).pipe(parser);
 
       const withMessageHistory = new RunnableWithMessageHistory({
         runnable: chain,
-        getMessageHistory: (sessionId) => {
+        getMessageHistory: async (sessionId) => {
           if (this.messageHistories[sessionId] === undefined) {
             this.messageHistories[sessionId] = new InMemoryChatMessageHistory();
+          } else {
+            let history = await this.messageHistories[sessionId].getMessages();
+            this.messageHistories[sessionId].addMessages(history.slice(-6))
           }
           return this.messageHistories[sessionId];
         },
@@ -693,10 +711,13 @@ class AIAssistant {
           input: question,
         },
         this.messageSessionConfig,
+        signal
       );
 
       // remove dot loader
       clearInterval(this.$loadInterval);
+      this.$sendBtn.classList.add("hide");
+      this.$stopGenerationBtn.classList.remove('hide');
       const targetElem = responseBox[responseBox.length - 1];
       targetElem.innerHTML = "";
       let result = "";
@@ -719,6 +740,8 @@ class AIAssistant {
           });
         }
       }
+      this.$stopGenerationBtn.classList.add("hide");
+      this.$sendBtn.classList.remove("hide");
 
       await this.saveHistory();
     } catch (error) {
@@ -728,14 +751,16 @@ class AIAssistant {
       const targetElem = responseBox[responseBox.length - 1];
       targetElem.innerHTML = "";
       const $errorBox = tag("div", { className: "error-box" });
+      console.log(error)
       if (error.response) {
-        $errorBox.innerText = `Status code: ${
-          error.response.status
-        }\n${JSON.stringify(error.response.data)}`;
+        $errorBox.innerText = `Status code: ${error.response.status
+          }\n${JSON.stringify(error.response.data)}`;
       } else {
         $errorBox.innerText = `${error.message}`;
       }
       targetElem.appendChild($errorBox);
+      this.$stopGenerationBtn.classList.add("hide");
+      this.$sendBtn.classList.remove("hide");
     }
   }
 
@@ -763,13 +788,12 @@ class AIAssistant {
   async destroy() {
     //sidebarApps.remove("dall-e-ai");
     editorManager.editor.commands.removeCommand("ai_assistant");
-    //editorManager.editor.commands.removeCommand("chatgpt_update_token");
-    window.localStorage.removeItem(window.localStorage.getItem("ai-assistant-provider"));
-		window.localStorage.removeItem("ai-assistant-provider");
-		window.localStorage.removeItem("ai-assistant-model-name");
-		if (await fs(window.DATA_STORAGE+"secret.key").exists()) {
-		  await fs(window.DATA_STORAGE+"secret.key").delete();
-		}
+    //   window.localStorage.removeItem(window.localStorage.getItem("ai-assistant-provider"));
+    // window.localStorage.removeItem("ai-assistant-provider");
+    // window.localStorage.removeItem("ai-assistant-model-name");
+    // if (await fs(window.DATA_STORAGE+"secret.key").exists()) {
+    //   await fs(window.DATA_STORAGE+"secret.key").delete();
+    // }
     this.$githubDarkFile.remove();
     this.$higlightJsFile.remove();
     this.$markdownItFile.remove();

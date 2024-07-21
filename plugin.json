@@ -8,6 +8,7 @@
   "files": [
     "assets/ai_assistant.svg",
     "assets/user_avatar.png",
+    "assets/insert-context.svg",
     "assets/github-dark.css",
     "assets/highlight.min.js",
     "assets/markdown-it.min.js"

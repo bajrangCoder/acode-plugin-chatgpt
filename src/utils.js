@@ -56,32 +56,7 @@ export async function getModelsFromProvider(provider, apiKey) {
           .map((model) => model.name.replace(/^models\//, "")); // Remove "models/" prefix
 
         break;
-      case AI_PROVIDERS[2]: // Deepseek AI
-        const deepseekAIResponse = await fetch(
-          `https://api.deepseek.com/v1/models`,
-          {
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
-
-        if (!deepseekAIResponse.ok) {
-          acode.alert(
-            "AI Assistant",
-            `Error fetching Deepseek AI models: ${deepseekAIResponse.statusText}`,
-          );
-          throw new Error(
-            `Error fetching Deepseek AI models: ${deepseekAIResponse.statusText}`,
-          );
-        }
-
-        const deepseekAIData = await deepseekAIResponse.json();
-        modelList = deepseekAIData.data.map((item) => item.id);
-        break;
-
-      case AI_PROVIDERS[3]: // ollama
+      case AI_PROVIDERS[2]: // ollama
         // check local storage, if user want to provide custom host for ollama
         let host = window.localStorage.getItem("Ollama-Host")
           ? window.localStorage.getItem("Ollama-Host")
@@ -91,7 +66,7 @@ export async function getModelsFromProvider(provider, apiKey) {
         modelList = list.models.map((item) => item.model);
         break;
 
-      case AI_PROVIDERS[4]: // Groq
+      case AI_PROVIDERS[3]: // Groq
         const groqAIResponse = await fetch(
           `https://api.groq.com/openai/v1/models`,
           {

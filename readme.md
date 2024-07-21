@@ -17,7 +17,7 @@ Work in progress...
 
 - [x] Implement multiple model providers for increased versatility
 - [x] Enhance history mechanism and introduce history context for AI interactions
-- [ ] Optimize history trimming to selectively share context without revealing entire history
+- [x] Optimize history trimming to selectively share context without revealing entire history
 - [x] Add user interface option for direct selection of model providers or specific models
 - [ ] Integrate support for current file context to enhance AI responses
 - [ ] Rewrite image generation feature to improve functionality and performance
