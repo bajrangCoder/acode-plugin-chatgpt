@@ -1,11 +1,17 @@
 export const AI_PROVIDERS = [
-  "OpenAI",
+  "OpenAI", // just for formality and I have tested it with my friends api key so If you have api key then test it thoroughly and let me know about it
+  // best when comes to pricing
   "Google",
+  // great if your hardware is capable
   "Ollama",
+  // Insane speed 
   "Groq",
+  // kind off paid and I think users also can't afford
   //"Deepseek",
+  // I don't have key to test
   //"MistralAI",
   //"Anthropic",
+  // due to security issue Cloudflare doesn't works on localhost but acode is on localhost
   //"Cloudflare Workers",
 ];
 

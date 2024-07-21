@@ -788,12 +788,12 @@ class AIAssistant {
   async destroy() {
     //sidebarApps.remove("dall-e-ai");
     editorManager.editor.commands.removeCommand("ai_assistant");
-    //   window.localStorage.removeItem(window.localStorage.getItem("ai-assistant-provider"));
-    // window.localStorage.removeItem("ai-assistant-provider");
-    // window.localStorage.removeItem("ai-assistant-model-name");
-    // if (await fs(window.DATA_STORAGE+"secret.key").exists()) {
-    //   await fs(window.DATA_STORAGE+"secret.key").delete();
-    // }
+     window.localStorage.removeItem(window.localStorage.getItem("ai-assistant-provider"));
+    window.localStorage.removeItem("ai-assistant-provider");
+    window.localStorage.removeItem("ai-assistant-model-name");
+    if (await fs(window.DATA_STORAGE+"secret.key").exists()) {
+       await fs(window.DATA_STORAGE+"secret.key").delete();
+    }
     this.$githubDarkFile.remove();
     this.$higlightJsFile.remove();
     this.$markdownItFile.remove();
