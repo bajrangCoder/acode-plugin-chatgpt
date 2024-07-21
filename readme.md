@@ -1,4 +1,4 @@
-AI Assistant
+AI Assistant Beta
 =========
 > Rewritten ChatGPT plugin
 
@@ -7,6 +7,21 @@ AI Assistant plugin for Acode for all the ai related stuffs with support of wide
 > Work in progress...
 
 **Note:** This is beta version but features are kind off stable and usable.(But many stuffs are still missing check todo section)
+
+## Supported Providers 
+
+- [OpenAi](https://platform.openai.com/account/api-keys) 🙂
+- [Google](https://makersuite.google.com/app/apikey) 😍
+- [Ollama](https://ollama.com/) 😍
+- [Groq](https://console.groq.com/keys) 😍
+- [Mistral](https://mistral.ai/) 😕
+- [Anthropic](https://www.anthropic.com/api) 😕
+
+### Emoji Code Docs
+
+- 😍 : Best and Recommended for beginners
+- 🙂 : Costly
+- 😕 : It will work but currently not added because I don't have key to test it.
 
 ## Usage (for contributors)
 

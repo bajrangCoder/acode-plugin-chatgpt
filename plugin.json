@@ -1,10 +1,11 @@
 {
   "id": "acode.plugin.chatgpt",
-  "name": "AI Assistant",
+  "name": "AI Assistant Beta",
   "main": "dist/main.js",
-  "version": "2.0.0-beta",
+  "version": "2.0.0",
   "readme": "readme.md",
   "icon": "icon.png",
+  "minVersionCode": 290,
   "files": [
     "assets/ai_assistant.svg",
     "assets/user_avatar.png",
