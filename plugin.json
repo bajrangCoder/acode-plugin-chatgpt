@@ -1,20 +1,22 @@
 {
   "id": "acode.plugin.chatgpt",
-  "name": "Chat GPT",
+  "name": "AI Assistant Beta",
   "main": "dist/main.js",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "readme": "readme.md",
   "icon": "icon.png",
+  "minVersionCode": 290,
   "files": [
-    "assets/chatgpt_avatar.svg",
+    "assets/ai_assistant.svg",
     "assets/user_avatar.png",
+    "assets/insert-context.svg",
     "assets/github-dark.css",
     "assets/highlight.min.js",
     "assets/markdown-it.min.js"
-    ],
+  ],
   "price": 0,
   "author": {
-    "name": "Raunak & Mayank",
+    "name": "Raunak",
     "email": "bajrangcoders@gmail.com",
     "github": "bajrangCoder"
   }
