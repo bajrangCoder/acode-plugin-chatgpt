@@ -91,11 +91,16 @@ export async function getModelsFromProvider(provider, apiKey) {
         modelList = groqAIData.data.map((item) => item.id);
         break;
 
+      case OPENAI_LIKE: // OpenAI-Like
+        // Return empty array because we do not fetch models for this
+        return [];
+
       default:
         throw new Error(`Unsupported provider: ${provider}`);
     }
   } catch (error) {
     console.error(error.message);
+    return [];
   }
 
   return modelList;

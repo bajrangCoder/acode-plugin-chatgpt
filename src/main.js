@@ -15,7 +15,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import copy from "copy-to-clipboard";
 import { v4 as uuidv4 } from "uuid";
 import { APIKeyManager } from "./api_key";
-import { AI_PROVIDERS, copyIconSvg, sendIconSvg, stopIconSvg } from "./constants";
+import { AI_PROVIDERS, OPENAI_LIKE, copyIconSvg, sendIconSvg, stopIconSvg } from "./constants";
 import { getModelsFromProvider } from "./utils";
 
 const multiPrompt = acode.require("multiPrompt");
@@ -143,48 +143,88 @@ class AIAssistant {
             default: previousProvider || ""
           });
           if (previousProvider != providerSelectBox) {
-            // check for api key 
-            if (window.localStorage.getItem(providerSelectBox) === null) {
-              let apiKey =
-                providerSelectBox == AI_PROVIDERS[2]
-                  ? "No Need Of API Key"
-                  : await prompt("API key of selected provider", "", "text", {
-                    required: true,
-                  });
+            // Check for OpenAI-Like providers
+            if (providerSelectBox === OPENAI_LIKE) {
+              // Collect required information for OpenAI-Like providers
+              const apiKey = await prompt("API Key", "", "text", { required: true });
               if (!apiKey) return;
-              loader.showTitleLoader();
-              window.toast("Fetching available models from your account", 2000);
-              let modelList = await getModelsFromProvider(providerSelectBox, apiKey);
-              loader.removeTitleLoader();
-              let modelNme = await select("Select AI Model", modelList);
-              window.localStorage.setItem("ai-assistant-provider", providerSelectBox);
-              window.localStorage.setItem("ai-assistant-model-name", modelNme);
-              await this.apiKeyManager.saveAPIKey(providerSelectBox, apiKey);
-              this.initiateModel(providerSelectBox, apiKey, modelNme);
+
+              const baseUrl = await prompt("API Base URL", "https://api.openai.com/v1", "text", {
+                required: true
+              });
+
+              const modelName = await prompt("Model Name", "", "text", { required: true });
+              if (!modelName) return;
+
+              // Save settings
+              window.localStorage.setItem("ai-assistant-provider", OPENAI_LIKE);
+              window.localStorage.setItem("ai-assistant-model-name", modelName);
+              window.localStorage.setItem("openai-like-baseurl", baseUrl);
+
+              await this.apiKeyManager.saveAPIKey(OPENAI_LIKE, apiKey);
+              this.initiateModel(OPENAI_LIKE, apiKey, modelName);
               this.newChat();
-            } else {
-              let apiKey = await this.apiKeyManager.getAPIKey(providerSelectBox);
-              this.initiateModel(providerSelectBox, apiKey, window.localStorage.getItem("ai-assistant-model-name"));
-              this.newChat();
+            }
+            // Handle other providers
+            else {
+              // check for api key
+              if (window.localStorage.getItem(providerSelectBox) === null) {
+                let apiKey =
+                  providerSelectBox == AI_PROVIDERS[2]
+                    ? "No Need Of API Key"
+                    : await prompt("API key of selected provider", "", "text", {
+                      required: true,
+                    });
+                if (!apiKey) return;
+                loader.showTitleLoader();
+                window.toast("Fetching available models from your account", 2000);
+                let modelList = await getModelsFromProvider(providerSelectBox, apiKey);
+                loader.removeTitleLoader();
+                let modelNme = await select("Select AI Model", modelList);
+                window.localStorage.setItem("ai-assistant-provider", providerSelectBox);
+                window.localStorage.setItem("ai-assistant-model-name", modelNme);
+                await this.apiKeyManager.saveAPIKey(providerSelectBox, apiKey);
+                this.initiateModel(providerSelectBox, apiKey, modelNme);
+                this.newChat();
+              } else {
+                let apiKey = await this.apiKeyManager.getAPIKey(providerSelectBox);
+                this.initiateModel(providerSelectBox, apiKey, window.localStorage.getItem("ai-assistant-model-name"));
+                this.newChat();
+              }
             }
           }
           break;
         case 'model':
           loader.showTitleLoader();
           window.toast("Fetching available models from your account", 2000);
-          let apiKey = await this.apiKeyManager.getAPIKey(window.localStorage.getItem("ai-assistant-provider"));
-          let modelList = await getModelsFromProvider(window.localStorage.getItem("ai-assistant-provider"), apiKey);
-          loader.removeTitleLoader();
-          let modelNme = await select("Select AI Model", modelList, {
-            default: window.localStorage.getItem("ai-assistant-model-name") || ""
-          });
-          if (window.localStorage.getItem("ai-assistant-model-name") != modelNme) {
-            window.localStorage.setItem("ai-assistant-model-name", modelNme);
-            this.initiateModel(window.localStorage.getItem("ai-assistant-provider"), apiKey, modelNme);
+          let provider = window.localStorage.getItem("ai-assistant-provider");
+          let apiKey = await this.apiKeyManager.getAPIKey(provider);
+
+          // Handle OpenAI-Like providers differently
+          if (provider === OPENAI_LIKE) {
+            loader.removeTitleLoader();
+            let currentModel = window.localStorage.getItem("ai-assistant-model-name") || "";
+            let modelName = await prompt("Enter Model Name", currentModel, "text", { required: true });
+            if (modelName) {
+              window.localStorage.setItem("ai-assistant-model-name", modelName);
+              this.initiateModel(OPENAI_LIKE, apiKey, modelName);
+            }
+          } 
+          // Handle other providers normally
+          else {
+            let modelList = await getModelsFromProvider(provider, apiKey);
+            loader.removeTitleLoader();
+            let modelNme = await select("Select AI Model", modelList, {
+              default: window.localStorage.getItem("ai-assistant-model-name") || ""
+            });
+            if (window.localStorage.getItem("ai-assistant-model-name") != modelNme) {
+              window.localStorage.setItem("ai-assistant-model-name", modelNme);
+              this.initiateModel(provider, apiKey, modelNme);
+            }
           }
           break;
       }
-    }
+    };
 
     const mainApp = tag("div", {
       className: "mainApp",
@@ -248,27 +288,55 @@ class AIAssistant {
         token = await this.apiKeyManager.getAPIKey(providerNme);
       } else {
         let modelProvider = await select("Select AI Provider", AI_PROVIDERS);
-        // no prompt for api key in case of ollama
-        let apiKey =
-          modelProvider == AI_PROVIDERS[2]
-            ? "No Need Of API Key"
-            : await prompt("API key of selected provider", "", "text", {
-              required: true,
-            });
-        if (!apiKey) return;
-        loader.showTitleLoader();
-        window.toast("Fetching available models from your account", 2000);
-        let modelList = await getModelsFromProvider(modelProvider, apiKey);
-        loader.removeTitleLoader();
-        const modelNme = await select("Select AI Model", modelList);
 
-        window.localStorage.setItem("ai-assistant-provider", modelProvider);
-        window.localStorage.setItem("ai-assistant-model-name", modelNme);
-        providerNme = modelProvider;
-        token = apiKey;
-        await fs(window.DATA_STORAGE).createFile("secret.key", passPhrase);
-        await this.apiKeyManager.saveAPIKey(providerNme, token);
-        window.toast("Configuration saved 🎉", 3000);
+        // Handle OpenAI-Like providers
+        if (modelProvider === OPENAI_LIKE) {
+          // Prompt for required information
+          const apiKey = await prompt("API Key", "", "text", { required: true });
+          if (!apiKey) return;
+
+          const baseUrl = await prompt("API Base URL", "https://api.openai.com/v1", "text", {
+            required: true
+          });
+
+          const modelName = await prompt("Model Name", "", "text", { required: true });
+          if (!modelName) return;
+
+          // Save settings
+          window.localStorage.setItem("ai-assistant-provider", OPENAI_LIKE);
+          window.localStorage.setItem("ai-assistant-model-name", modelName);
+          window.localStorage.setItem("openai-like-baseurl", baseUrl);
+
+          token = apiKey;
+          providerNme = OPENAI_LIKE;
+          await fs(window.DATA_STORAGE).createFile("secret.key", passPhrase);
+          await this.apiKeyManager.saveAPIKey(OPENAI_LIKE, token);
+          window.toast("Configuration saved 🎉", 3000);
+        } 
+        // Handle other providers
+        else {
+          // no prompt for api key in case of ollama
+          let apiKey =
+            modelProvider == AI_PROVIDERS[2]
+              ? "No Need Of API Key"
+              : await prompt("API key of selected provider", "", "text", {
+                required: true,
+              });
+          if (!apiKey) return;
+          loader.showTitleLoader();
+          window.toast("Fetching available models from your account", 2000);
+          let modelList = await getModelsFromProvider(modelProvider, apiKey);
+          loader.removeTitleLoader();
+          const modelNme = await select("Select AI Model", modelList);
+
+          window.localStorage.setItem("ai-assistant-provider", modelProvider);
+          window.localStorage.setItem("ai-assistant-model-name", modelNme);
+          providerNme = modelProvider;
+          token = apiKey;
+          await fs(window.DATA_STORAGE).createFile("secret.key", passPhrase);
+          await this.apiKeyManager.saveAPIKey(providerNme, token);
+          window.toast("Configuration saved 🎉", 3000);
+        }
       }
 
       let model = window.localStorage.getItem("ai-assistant-model-name");
@@ -303,10 +371,10 @@ class AIAssistant {
 
   initiateModel(providerNme, token, model) {
     switch (providerNme) {
-      case AI_PROVIDERS[0]:
+      case AI_PROVIDERS[0]: // OpenAI
         this.modelInstance = new ChatOpenAI({ apiKey: token, model });
         break;
-      case AI_PROVIDERS[1]:
+      case AI_PROVIDERS[1]: // Google
         this.modelInstance = new ChatGoogleGenerativeAI({
           model,
           apiKey: token,
@@ -318,7 +386,7 @@ class AIAssistant {
           ],
         });
         break;
-      case AI_PROVIDERS[2]:
+      case AI_PROVIDERS[2]: // Ollama
         // check local storage, if user want to provide custom host for ollama
         let baseUrl = window.localStorage.getItem("Ollama-Host")
           ? window.localStorage.getItem("Ollama-Host")
@@ -328,10 +396,20 @@ class AIAssistant {
           model
         });
         break;
-      case AI_PROVIDERS[3]:
+      case AI_PROVIDERS[3]: // Groq
         this.modelInstance = new ChatGroq({
           apiKey: token,
           model,
+        });
+        break;
+      case OPENAI_LIKE: // OpenAI-Like providers
+        const customBaseUrl = window.localStorage.getItem("openai-like-baseurl") || "https://api.openai.com/v1";
+        this.modelInstance = new ChatOpenAI({
+          apiKey: token,
+          model,
+          configuration: {
+            baseURL: customBaseUrl
+          }
         });
         break;
       default:
@@ -791,6 +869,7 @@ class AIAssistant {
      window.localStorage.removeItem(window.localStorage.getItem("ai-assistant-provider"));
     window.localStorage.removeItem("ai-assistant-provider");
     window.localStorage.removeItem("ai-assistant-model-name");
+    window.localStorage.removeItem("openai-like-baseurl");
     if (await fs(window.DATA_STORAGE+"secret.key").exists()) {
        await fs(window.DATA_STORAGE+"secret.key").delete();
     }
