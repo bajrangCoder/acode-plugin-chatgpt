@@ -60,12 +60,13 @@ To use AI Assistant, simply search for `"AI Assistant"` in the **command palette
 
 First, it will prompt you for a passphrase (remember it), which will be used to securely save the API key.  
 Then, it will ask you to select a provider and enter the API key for that provider.  
-If you have selected OpenAI-Like as provider then you will be asked to enter API base url.
+If you have selected OpenAI-Like provider then you will be asked to enter API base url.
 It will then load the available models on your account, select the model and start the communication.  
-If your provider is OpenAI-Like then it will not load models and you will be asked to specify the model manually, after which your configuration is done.  
+If you have selected OpenAI-Like provider then it will not load models and you will be asked to enter the model manually, after which your configuration is done.  
 
 **Note**: 
 - You can change providers or models from the chat interface by using the triple vertical dots icon.
+- If you want to use OpenAI-Like provider you need to refer to documentation of your provider for api base url and model.
 - Currently only one provider can be specified in OpenAI-Like provider.
 
 Contributing

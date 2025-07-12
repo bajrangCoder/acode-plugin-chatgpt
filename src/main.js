@@ -153,7 +153,7 @@ class AIAssistant {
                 required: true
               });
 
-              const modelName = await prompt("Model Name", "", "text", { required: true });
+              const modelName = await prompt("Model", "", "text", { required: true });
               if (!modelName) return;
 
               // Save settings
@@ -195,16 +195,13 @@ class AIAssistant {
           }
           break;
         case 'model':
-          loader.showTitleLoader();
-          window.toast("Fetching available models from your account", 2000);
           let provider = window.localStorage.getItem("ai-assistant-provider");
           let apiKey = await this.apiKeyManager.getAPIKey(provider);
 
           // Handle OpenAI-Like providers differently
           if (provider === OPENAI_LIKE) {
-            loader.removeTitleLoader();
             let currentModel = window.localStorage.getItem("ai-assistant-model-name") || "";
-            let modelName = await prompt("Enter Model Name", currentModel, "text", { required: true });
+            let modelName = await prompt("Enter Model", currentModel, "text", { required: true });
             if (modelName) {
               window.localStorage.setItem("ai-assistant-model-name", modelName);
               this.initiateModel(OPENAI_LIKE, apiKey, modelName);
@@ -212,6 +209,8 @@ class AIAssistant {
           } 
           // Handle other providers normally
           else {
+            loader.showTitleLoader();
+            window.toast("Fetching available models from your account", 2000);
             let modelList = await getModelsFromProvider(provider, apiKey);
             loader.removeTitleLoader();
             let modelNme = await select("Select AI Model", modelList, {
@@ -299,7 +298,7 @@ class AIAssistant {
             required: true
           });
 
-          const modelName = await prompt("Model Name", "", "text", { required: true });
+          const modelName = await prompt("Model", "", "text", { required: true });
           if (!modelName) return;
 
           // Save settings
