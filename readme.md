@@ -16,6 +16,7 @@ AI Assistant plugin for Acode for all the ai related stuffs with support of wide
 - [Groq](https://console.groq.com/keys) 😍
 - [Mistral](https://mistral.ai/) 😕
 - [Anthropic](https://www.anthropic.com/api) 😕
+- OpenAI-Like Providers (Providers that use OpenAI style APIs to provide ai models, for example [Openrouter](https://openrouter.ai/)) 🙂
 
 ### Emoji Code Docs
 
@@ -57,9 +58,16 @@ How to use:
 
 To use AI Assistant, simply search for `"AI Assistant"` in the **command palette (<kbd>Ctrl-Shift-P</kbd>)** to open the chat interface. From there, you can communicate with the AI and receive helpful suggestions and solutions. 
 
-First, it will prompt you for a passphrase (remember it), which will be used to securely save the API key. Then, it will ask you to select a provider and enter the API key for that provider. It will load the available models on your account. Select the model and start the communication.
+First, it will prompt you for a passphrase (remember it), which will be used to securely save the API key.  
+Then, it will ask you to select a provider and enter the API key for that provider.  
+If you have selected OpenAI-Like provider then you will be asked to enter API base url.
+It will then load the available models on your account, select the model and start the communication.  
+If you have selected OpenAI-Like provider then it will not load models and you will be asked to enter the model manually, after which your configuration is done.  
 
-**Note**: You can change providers or models from the chat interface by using the triple vertical dots icon.
+**Note**: 
+- You can change providers or models from the chat interface by using the triple vertical dots icon.
+- If you want to use OpenAI-Like provider you need to refer to documentation of your provider for api base url and model.
+- Currently only one provider can be specified in OpenAI-Like provider.
 
 Contributing
 -----------
