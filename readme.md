@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This plugin is deprecated, instead use the [Acode Ai Agent](https://acode.app/plugin/acode.ai.agent/description) plugin. That one is more powerful with agentic capabilities and also open source(https://github.com/Acode-Foundation/acode-ai-agent)
+
 AI Assistant Beta
 =========
 > Rewritten ChatGPT plugin
